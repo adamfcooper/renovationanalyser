@@ -4,8 +4,8 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import {
   addRenovationCostItemAction,
   deleteRenovationCostItemAction,
-  updateRenovationCostItemStatusAction,
 } from "@/app/actions";
+import { PurchasedStatusForm } from "@/components/purchased-status-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
@@ -155,20 +155,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                     </td>
                     <td className="px-4 py-3 text-right font-medium text-white">{formatCurrency(item.amount)}</td>
                     <td className="px-4 py-3">
-                      <form action={updateRenovationCostItemStatusAction} className="flex items-center gap-2">
-                        <input type="hidden" name="projectId" value={project.id} />
-                        <input type="hidden" name="itemId" value={item.id} />
-                        <input
-                          aria-label={`Mark ${item.name} as purchased`}
-                          className="size-4 accent-sky-500"
-                          defaultChecked={item.purchased}
-                          name="purchased"
-                          type="checkbox"
-                        />
-                        <button className="rounded-md border border-slate-700 px-2 py-1 text-xs font-medium text-slate-300 hover:border-sky-400 hover:text-sky-200">
-                          {item.purchased ? "Purchased" : "Planned"}
-                        </button>
-                      </form>
+                      <PurchasedStatusForm
+                        itemId={item.id}
+                        itemName={item.name}
+                        projectId={project.id}
+                        purchased={item.purchased}
+                      />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <form action={deleteRenovationCostItemAction}>

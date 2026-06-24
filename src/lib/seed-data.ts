@@ -116,7 +116,7 @@ const costItem = (
   name,
   tag,
   amount,
-  purchased: false,
+  purchased: true,
   supplier: null,
   purchaseUrl: options.purchaseUrl ?? null,
   notes: options.notes ?? "Imported from Erica Dr Reno supply sheet.",

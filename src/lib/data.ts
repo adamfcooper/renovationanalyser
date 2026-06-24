@@ -24,8 +24,12 @@ export async function getProjects() {
   });
 
   const ericaProject = projects.find((project) => project.name === ericaDriveProject.name);
+  const importedItemNames = new Set(ericaDriveCostItems.map((item) => item.name));
+  const importedItems = ericaProject?.costItems.filter((item) => importedItemNames.has(item.name)) ?? [];
   const needsEricaSeed =
-    !ericaProject || !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name);
+    !ericaProject ||
+    !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name) ||
+    (importedItems.length > 0 && importedItems.every((item) => !item.purchased));
 
   if (needsEricaSeed) {
     await seedStarterProject();
@@ -96,13 +100,26 @@ async function seedStarterProject() {
 
 async function ensureEricaDriveCostItems(projectId: string) {
   const db = getDb();
+  const importedItemNames = ericaDriveCostItems.map((item) => item.name);
   const existingItems = await db.renovationCostItem.findMany({
     where: { projectId },
-    select: { name: true },
+    select: { name: true, purchased: true },
   });
   const existingNames = new Set(existingItems.map((item) => item.name));
 
-  if (existingNames.has(ericaDriveCostItems[0].name)) return;
+  if (existingNames.has(ericaDriveCostItems[0].name)) {
+    await db.renovationCostItem.updateMany({
+      where: {
+        projectId,
+        name: { in: importedItemNames },
+      },
+      data: {
+        purchased: true,
+        purchasedAt: new Date(),
+      },
+    });
+    return;
+  }
 
   await db.renovationCostItem.deleteMany({
     where: {
@@ -115,6 +132,7 @@ async function ensureEricaDriveCostItems(projectId: string) {
     data: ericaDriveCostItems.map((item) => ({
       ...item,
       projectId,
+      purchasedAt: item.purchased ? new Date() : null,
     })),
   });
 }
