@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Project {
+  id                     String         @id @default(cuid())
+  name                   String
+  projectLink            String?
+  addressOrArea          String?
+  propertyType           PropertyType
+  bedrooms               Int?
+  bathrooms              Int?
+  internalSqFt           Float?
+  kitchenSqFt            Float?
+  bathroomSqFt           Float?
+  flooringSqFt           Float?
+  plasteringSqFt         Float?
+  plumbingHours          Float?
+  electricalHours        Float?
+
+  askingPrice            Float?
+  estimatedMarketValue   Float?
+  estimatedSalePrice     Float
+  targetPurchasePrice    Float?
+  actualPurchasePrice    Float
+
+  conditionLevel         ConditionLevel
+  needsKitchen           Boolean        @default(false)
+  needsBathroom          Boolean        @default(false)
+  needsFlooring          Boolean        @default(false)
+  needsDecorating        Boolean        @default(false)
+  needsMinorPlumbing     Boolean        @default(false)
+  needsMinorElectrical   Boolean        @default(false)
+  needsGardenWork        Boolean        @default(false)
+  plumbingLevel          TradeLevel     @default(NONE)
+  electricalLevel        TradeLevel     @default(NONE)
+  decoratingLevel        TradeLevel     @default(NONE)
+  plasteringLevel        TradeLevel     @default(NONE)
+
+  estimatedHoldingMonths Int
+  financeType            FinanceType
+  depositAmount          Float?
+  mortgageInterestRate   Float?
+  mortgageTermYears      Float?
+  targetRoiPercent       Float?
+  targetProfit           Float?
+  notes                  String?
+
+  stampDuty              Float?
+  survey                 Float?
+  purchaseLegalFees      Float?
+  brokerFee              Float?
+  lenderValuationFee     Float?
+  mortgageArrangementFee Float?
+
+  kitchenCost            Float?
+  bathroomCost           Float?
+  flooringCost           Float?
+  decoratingCost         Float?
+  plumbingCost           Float?
+  electricalCost         Float?
+  gardenCost             Float?
+  restOfHouseCost        Float?
+  miscCost               Float?
+  contingencyPercentage  Float?
+
+  mortgageCostPerMonth   Float?
+  councilTaxPerMonth     Float?
+  utilitiesPerMonth      Float?
+  insurancePerMonth      Float?
+
+  estateAgentFeeMode     EstateAgentFeeMode?
+  estateAgentFixedFee    Float?
+  estateAgentPercentage  Float?
+  saleLegalFees          Float?
+  epc                    Float?
+  stagingPhotography     Float?
+  mortgageExitFee        Float?
+  capitalGainsTax        Float?
+
+  snapshots              ProjectSnapshot[]
+  costItems              RenovationCostItem[]
+
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+}
+
+model Assumption {
+  id                     String             @id @default(cuid())
+  kitchenDefault         Float              @default(4750)
+  bathroomDefault        Float              @default(1775)
+  flooringDefault        Float              @default(0)
+  decoratingDefault      Float              @default(0)
+  plumbingDefault        Float              @default(0)
+  electricalDefault      Float              @default(0)
+  gardenDefault          Float              @default(0)
+  restOfHouseDefault     Float              @default(0)
+  miscDefault            Float              @default(667)
+  renovationCostPerSqFt  Float?
+  kitchenRenoCostPerSqFt Float?
+  bathroomRenoCostPerSqFt Float?
+  flooringCostPerSqFt    Float?
+  plasteringCostPerSqFt  Float?
+  skipCost               Float              @default(240)
+  skipCoverageSqFt       Float              @default(915)
+  acquisitionCostPerSqFt Float?
+  plumbingDayRate        Float              @default(385)
+  electricianDayRate     Float              @default(385)
+  decoratorDayRate       Float              @default(250)
+  plastererDayRate       Float              @default(300)
+  lightTradeDays         Float              @default(0.5)
+  mediumTradeDays        Float              @default(1)
+  heavyTradeDays         Float              @default(2)
+
+  mortgageCostPerMonth   Float              @default(279)
+  councilTaxPerMonth     Float              @default(190)
+  utilitiesPerMonth      Float              @default(113)
+  insurancePerMonth      Float              @default(10)
+
+  stampDutyDefault       Float              @default(1200)
+  purchaseLegalFees      Float              @default(1200)
+  survey                 Float              @default(500)
+  brokerFee              Float              @default(199)
+  lenderValuationFee     Float              @default(0)
+  mortgageArrangementFee Float              @default(0)
+
+  saleLegalFees          Float              @default(1000)
+  epc                    Float              @default(0)
+  stagingPhotography     Float              @default(0)
+  mortgageExitFee        Float              @default(350)
+  estateAgentFeeMode     EstateAgentFeeMode @default(FIXED)
+  estateAgentFixedFee    Float              @default(2640)
+  estateAgentPercentage  Float?
+  contingencyPercentage  Float              @default(10)
+
+  updatedAt              DateTime           @updatedAt
+}
+
+model ProjectSnapshot {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  acquisitionCosts Json
+  renovationCosts  Json
+  holdingCosts     Json
+  disposalCosts    Json
+  results          Json
+  sensitivity      Json
+  warnings         Json
+  createdAt        DateTime @default(now())
+}
+
+model RenovationCostItem {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  tag         String?
+  amount      Float
+  purchased   Boolean  @default(false)
+  supplier    String?
+  purchaseUrl String?
+  notes       String?
+  purchasedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum PropertyType {
+  BUNGALOW
+  TERRACE
+  SEMI
+  DETACHED
+  FLAT
+}
+
+enum ConditionLevel {
+  LIGHT_COSMETIC
+  MEDIUM_COSMETIC
+  HEAVY_COSMETIC
+  FULL_RENOVATION
+}
+
+enum FinanceType {
+  CASH
+  MORTGAGE
+  BRIDGING
+}
+
+enum EstateAgentFeeMode {
+  FIXED
+  PERCENTAGE
+}
+
+enum TradeLevel {
+  NONE
+  LIGHT
+  MEDIUM
+  HEAVY
+}
