@@ -8,6 +8,7 @@ import {
 } from "./seed-data";
 
 const ERICA_PURCHASED_SEED_VERSION = "erica-cost-items-purchased-v1";
+const ERICA_PURCHASED_SEED_MARKER = `[seed:${ERICA_PURCHASED_SEED_VERSION}]`;
 
 export async function getAssumptions() {
   const db = getDb();
@@ -31,7 +32,7 @@ export async function getProjects() {
   const needsEricaSeed =
     !ericaProject ||
     !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name) ||
-    (ericaProject.seedVersion !== ERICA_PURCHASED_SEED_VERSION && importedItems.some((item) => !item.purchased));
+    (!ericaProject.notes?.includes(ERICA_PURCHASED_SEED_MARKER) && importedItems.some((item) => !item.purchased));
 
   if (needsEricaSeed) {
     await seedStarterProject();
@@ -85,13 +86,11 @@ async function seedStarterProject() {
   const project = await db.project.create({
     data: {
       ...ericaDriveProject,
-      seedVersion: ERICA_PURCHASED_SEED_VERSION,
       plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
       electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
       decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",
       plasteringLevel: ericaDriveProject.plasteringLevel ?? "NONE",
-      notes:
-        "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.",
+      notes: ericaSeedNotes(),
       costItems: {
         create: ericaDriveCostItems,
       },
@@ -123,7 +122,7 @@ async function ensureEricaDriveCostItems(projectId: string) {
     });
     await db.project.update({
       where: { id: projectId },
-      data: { seedVersion: ERICA_PURCHASED_SEED_VERSION },
+      data: { notes: existingProjectNotesWithMarker(await getProjectNotes(projectId)) },
     });
     return;
   }
@@ -142,4 +141,22 @@ async function ensureEricaDriveCostItems(projectId: string) {
       purchasedAt: item.purchased ? new Date() : null,
     })),
   });
+}
+
+async function getProjectNotes(projectId: string) {
+  const project = await getDb().project.findUnique({
+    where: { id: projectId },
+    select: { notes: true },
+  });
+
+  return project?.notes ?? null;
+}
+
+function ericaSeedNotes() {
+  return `Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.\n${ERICA_PURCHASED_SEED_MARKER}`;
+}
+
+function existingProjectNotesWithMarker(notes: string | null) {
+  if (notes?.includes(ERICA_PURCHASED_SEED_MARKER)) return notes;
+  return `${notes?.trim() || "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft."}\n${ERICA_PURCHASED_SEED_MARKER}`;
 }

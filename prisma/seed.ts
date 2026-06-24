@@ -26,13 +26,12 @@ async function main() {
   const project = await prisma.project.create({
     data: {
       ...ericaDriveProject,
-      seedVersion: "erica-cost-items-purchased-v1",
       plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
       electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
       decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",
       plasteringLevel: ericaDriveProject.plasteringLevel ?? "NONE",
       notes:
-        "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.",
+        "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.\n[seed:erica-cost-items-purchased-v1]",
       costItems: {
         create: ericaDriveCostItems,
       },
