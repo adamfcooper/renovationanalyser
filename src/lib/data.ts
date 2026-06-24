@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "./calculations";
-import { defaultAssumptions } from "./seed-data";
+import { defaultAssumptions, ericaDriveCostItems, ericaDriveProject } from "./seed-data";
 
 export async function getAssumptions() {
   const db = getDb();
@@ -12,10 +12,21 @@ export async function getAssumptions() {
 }
 
 export async function getProjects() {
-  return getDb().project.findMany({
+  const db = getDb();
+  let projects = await db.project.findMany({
     orderBy: { createdAt: "desc" },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
+
+  if (projects.length === 0) {
+    await seedStarterProject();
+    projects = await db.project.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
+    });
+  }
+
+  return projects;
 }
 
 export async function getProject(id: string) {
@@ -43,4 +54,26 @@ export async function getCalculatedProject(id: string) {
     assumptions,
     calculation: calculateDeal(project as ProjectInput, assumptions as AssumptionsInput),
   };
+}
+
+async function seedStarterProject() {
+  const db = getDb();
+  const existingProject = await db.project.findFirst();
+
+  if (existingProject) return;
+
+  await db.project.create({
+    data: {
+      ...ericaDriveProject,
+      plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
+      electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
+      decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",
+      plasteringLevel: ericaDriveProject.plasteringLevel ?? "NONE",
+      notes:
+        "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.",
+      costItems: {
+        create: ericaDriveCostItems,
+      },
+    },
+  });
 }

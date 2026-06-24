@@ -106,3 +106,51 @@ export const ericaDriveProject: ProjectInput = {
   mortgageExitFee: null,
   capitalGainsTax: 0,
 };
+
+export const ericaDriveCostItems = [
+  {
+    name: "Kitchen renovation allowance",
+    tag: "Kitchen",
+    amount: 4746.88,
+    purchased: false,
+    supplier: null,
+    purchaseUrl: null,
+    notes: "Allowance from Erica Drive model.",
+  },
+  {
+    name: "Bathroom renovation allowance",
+    tag: "Bathroom",
+    amount: 1773.6,
+    purchased: false,
+    supplier: null,
+    purchaseUrl: null,
+    notes: "Allowance from Erica Drive model.",
+  },
+  {
+    name: "Full house flooring quote",
+    tag: "Flooring",
+    amount: 1550,
+    purchased: false,
+    supplier: null,
+    purchaseUrl: null,
+    notes: "Quote covers 915 sq ft.",
+  },
+  {
+    name: "Brilliant white paint allowance",
+    tag: "Decorating",
+    amount: 75.03,
+    purchased: false,
+    supplier: null,
+    purchaseUrl: null,
+    notes: "915 sq ft x £0.082 per sq ft.",
+  },
+  {
+    name: "Skip hire",
+    tag: "Waste",
+    amount: 240,
+    purchased: false,
+    supplier: null,
+    purchaseUrl: null,
+    notes: "One skip allowance for 915 sq ft renovation.",
+  },
+];

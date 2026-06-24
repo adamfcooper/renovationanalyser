@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { calculateDeal } from "../src/lib/calculations";
-import { defaultAssumptions, ericaDriveProject } from "../src/lib/seed-data";
+import { defaultAssumptions, ericaDriveCostItems, ericaDriveProject } from "../src/lib/seed-data";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is required to seed the database.");
@@ -32,6 +32,9 @@ async function main() {
       plasteringLevel: ericaDriveProject.plasteringLevel ?? "NONE",
       notes:
         "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.",
+      costItems: {
+        create: ericaDriveCostItems,
+      },
     },
   });
 
