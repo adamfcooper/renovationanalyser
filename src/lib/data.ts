@@ -7,6 +7,8 @@ import {
   ericaDriveStarterItemNames,
 } from "./seed-data";
 
+const ERICA_PURCHASED_SEED_VERSION = "erica-cost-items-purchased-v1";
+
 export async function getAssumptions() {
   const db = getDb();
   const existing = await db.assumption.findFirst({ orderBy: { updatedAt: "desc" } });
@@ -29,7 +31,7 @@ export async function getProjects() {
   const needsEricaSeed =
     !ericaProject ||
     !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name) ||
-    (importedItems.length > 0 && importedItems.every((item) => !item.purchased));
+    (ericaProject.seedVersion !== ERICA_PURCHASED_SEED_VERSION && importedItems.some((item) => !item.purchased));
 
   if (needsEricaSeed) {
     await seedStarterProject();
@@ -83,6 +85,7 @@ async function seedStarterProject() {
   const project = await db.project.create({
     data: {
       ...ericaDriveProject,
+      seedVersion: ERICA_PURCHASED_SEED_VERSION,
       plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
       electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
       decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",
@@ -117,6 +120,10 @@ async function ensureEricaDriveCostItems(projectId: string) {
         purchased: true,
         purchasedAt: new Date(),
       },
+    });
+    await db.project.update({
+      where: { id: projectId },
+      data: { seedVersion: ERICA_PURCHASED_SEED_VERSION },
     });
     return;
   }

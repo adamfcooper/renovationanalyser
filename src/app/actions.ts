@@ -308,7 +308,8 @@ export async function addRenovationCostItemAction(formData: FormData) {
 export async function updateRenovationCostItemStatusAction(formData: FormData) {
   const projectId = text(formData, "projectId");
   const itemId = text(formData, "itemId");
-  const purchased = bool(formData, "purchased");
+  const status = text(formData, "status", "planned");
+  const purchased = status === "purchased";
 
   if (!projectId || !itemId) return;
 

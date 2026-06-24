@@ -26,6 +26,7 @@ async function main() {
   const project = await prisma.project.create({
     data: {
       ...ericaDriveProject,
+      seedVersion: "erica-cost-items-purchased-v1",
       plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
       electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
       decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",

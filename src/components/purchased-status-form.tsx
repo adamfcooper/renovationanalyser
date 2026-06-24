@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updateRenovationCostItemStatusAction } from "@/app/actions";
 
 export function PurchasedStatusForm({
@@ -14,30 +15,46 @@ export function PurchasedStatusForm({
   projectId: string;
   purchased: boolean;
 }) {
-  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [optimisticPurchased, setOptimisticPurchased] = useOptimistic(purchased);
+
+  function updateStatus(nextPurchased: boolean) {
+    const formData = new FormData();
+    formData.set("projectId", projectId);
+    formData.set("itemId", itemId);
+    formData.set("status", nextPurchased ? "purchased" : "planned");
+
+    startTransition(() => {
+      setOptimisticPurchased(nextPurchased);
+      updateRenovationCostItemStatusAction(formData).then(() => {
+        router.refresh();
+      });
+    });
+  }
 
   return (
-    <form ref={formRef} action={updateRenovationCostItemStatusAction} className="flex items-center gap-2">
-      <input type="hidden" name="projectId" value={projectId} />
-      <input type="hidden" name="itemId" value={itemId} />
-      <input
-        aria-label={`Mark ${itemName} as purchased`}
-        className="size-4 accent-sky-500"
-        defaultChecked={purchased}
-        disabled={isPending}
-        name="purchased"
-        onChange={() => {
-          startTransition(() => formRef.current?.requestSubmit());
-        }}
-        type="checkbox"
-      />
+    <div aria-label={`Set purchase status for ${itemName}`} className="inline-grid grid-cols-2 rounded-md border border-slate-700 bg-[#111318] p-1">
       <button
-        className="rounded-md border border-slate-700 px-2 py-1 text-xs font-medium text-slate-300 hover:border-sky-400 hover:text-sky-200 disabled:cursor-wait disabled:opacity-60"
+        className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
+          optimisticPurchased ? "text-slate-400 hover:text-white" : "bg-amber-400 text-slate-950"
+        }`}
         disabled={isPending}
+        onClick={() => updateStatus(false)}
+        type="button"
       >
-        {isPending ? "Updating..." : purchased ? "Purchased" : "Planned"}
+        Planned
       </button>
-    </form>
+      <button
+        className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
+          optimisticPurchased ? "bg-emerald-400 text-slate-950" : "text-slate-400 hover:text-white"
+        }`}
+        disabled={isPending}
+        onClick={() => updateStatus(true)}
+        type="button"
+      >
+        Purchased
+      </button>
+    </div>
   );
 }

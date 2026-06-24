@@ -10,6 +10,7 @@ datasource db {
 model Project {
   id                     String         @id @default(cuid())
   name                   String
+  seedVersion            String?
   projectLink            String?
   addressOrArea          String?
   propertyType           PropertyType
