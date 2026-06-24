@@ -1,6 +1,11 @@
 import { getDb } from "./db";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "./calculations";
-import { defaultAssumptions, ericaDriveCostItems, ericaDriveProject } from "./seed-data";
+import {
+  defaultAssumptions,
+  ericaDriveCostItems,
+  ericaDriveProject,
+  ericaDriveStarterItemNames,
+} from "./seed-data";
 
 export async function getAssumptions() {
   const db = getDb();
@@ -18,7 +23,11 @@ export async function getProjects() {
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
 
-  if (!projects.some((project) => project.name === ericaDriveProject.name)) {
+  const ericaProject = projects.find((project) => project.name === ericaDriveProject.name);
+  const needsEricaSeed =
+    !ericaProject || !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name);
+
+  if (needsEricaSeed) {
     await seedStarterProject();
     projects = await db.project.findMany({
       orderBy: { createdAt: "desc" },
@@ -62,9 +71,12 @@ async function seedStarterProject() {
     where: { name: ericaDriveProject.name },
   });
 
-  if (existingProject) return;
+  if (existingProject) {
+    await ensureEricaDriveCostItems(existingProject.id);
+    return;
+  }
 
-  await db.project.create({
+  const project = await db.project.create({
     data: {
       ...ericaDriveProject,
       plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
@@ -77,5 +89,32 @@ async function seedStarterProject() {
         create: ericaDriveCostItems,
       },
     },
+  });
+
+  await ensureEricaDriveCostItems(project.id);
+}
+
+async function ensureEricaDriveCostItems(projectId: string) {
+  const db = getDb();
+  const existingItems = await db.renovationCostItem.findMany({
+    where: { projectId },
+    select: { name: true },
+  });
+  const existingNames = new Set(existingItems.map((item) => item.name));
+
+  if (existingNames.has(ericaDriveCostItems[0].name)) return;
+
+  await db.renovationCostItem.deleteMany({
+    where: {
+      projectId,
+      name: { in: ericaDriveStarterItemNames },
+    },
+  });
+
+  await db.renovationCostItem.createMany({
+    data: ericaDriveCostItems.map((item) => ({
+      ...item,
+      projectId,
+    })),
   });
 }
