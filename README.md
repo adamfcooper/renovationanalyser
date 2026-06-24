@@ -7,7 +7,7 @@ A simple database-backed Next.js app for analysing UK renovation and flip opport
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- SQLite
+- Postgres
 - Prisma Client
 - Vitest
 
@@ -20,7 +20,7 @@ npm run db:generate
 npm run db:seed
 ```
 
-`db:setup` creates the local SQLite tables at `prisma/dev.db`. Prisma 7's local schema engine failed silently in this environment, so the app uses a direct setup script for SQLite while still using Prisma Client as the ORM.
+Set `DATABASE_URL` to a Postgres connection string before running database commands. On Vercel, connect a Postgres storage integration and it will provide `DATABASE_URL` automatically.
 
 ## Run Locally
 
@@ -41,10 +41,9 @@ npm run db:seed
 
 ## Seed Data
 
-The database seeds one project:
+The database seed creates one project:
 
-- `Parents Bungalow Renovation`
-- Area: `Erica Drive`
+- `Erica Drive`
 - Size: `915 sq ft`, taken from the attached floor plan
 - Kitchen: `71.53 sq ft`
 - Bathroom: `34.76 sq ft`
@@ -130,11 +129,3 @@ ROI = net profit / all-in cost * 100
 ```
 
 Sale price guidance solves for the sale price needed to hit target ROI bands. New projects use the 10% ROI sale price as their base advised sale price, and the project detail page also shows the prices needed for 11-20% and 21-30% ROI.
-
-Sensitivity analysis:
-
-- Base case: entered assumptions
-- Optimistic: sale price `+5%`, renovation `-5%`, holding period `-1 month`
-- Pessimistic: sale price `-5%`, renovation `+10%`, holding period `+2 months`
-
-For v1, disposal costs stay fixed in sensitivity scenarios.
