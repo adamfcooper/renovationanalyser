@@ -18,7 +18,7 @@ export async function getProjects() {
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
 
-  if (projects.length === 0) {
+  if (!projects.some((project) => project.name === ericaDriveProject.name)) {
     await seedStarterProject();
     projects = await db.project.findMany({
       orderBy: { createdAt: "desc" },
@@ -58,7 +58,9 @@ export async function getCalculatedProject(id: string) {
 
 async function seedStarterProject() {
   const db = getDb();
-  const existingProject = await db.project.findFirst();
+  const existingProject = await db.project.findFirst({
+    where: { name: ericaDriveProject.name },
+  });
 
   if (existingProject) return;
 
