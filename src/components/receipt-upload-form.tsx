@@ -152,7 +152,6 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
             <input
               ref={inputRef}
               accept="image/jpeg,image/png,image/webp,image/*"
-              capture="environment"
               className="sr-only"
               onChange={(event) => chooseFile(event.target.files?.[0])}
               type="file"
