@@ -141,6 +141,10 @@ async function ensureEricaDriveCostItems(projectId: string) {
       purchasedAt: item.purchased ? new Date() : null,
     })),
   });
+  await db.project.update({
+    where: { id: projectId },
+    data: { notes: existingProjectNotesWithMarker(await getProjectNotes(projectId)) },
+  });
 }
 
 async function getProjectNotes(projectId: string) {

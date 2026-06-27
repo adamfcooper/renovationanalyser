@@ -6,6 +6,7 @@ import {
   deleteRenovationCostItemAction,
 } from "@/app/actions";
 import { PurchasedStatusForm } from "@/components/purchased-status-form";
+import { ReceiptUploadForm } from "@/components/receipt-upload-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
@@ -245,12 +246,13 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             Add item
           </button>
         </form>
+        <ReceiptUploadForm projectId={project.id} />
       </section>
 
-      {project.notes ? (
+      {displayProjectNotes(project.notes) ? (
         <section className="mt-6 rounded-md border border-slate-700 bg-[#171b22] p-4">
           <h2 className="text-base font-semibold text-white">Notes</h2>
-          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-300">{project.notes}</p>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-300">{displayProjectNotes(project.notes)}</p>
         </section>
       ) : null}
     </>
@@ -288,4 +290,8 @@ function formatSalePriceBand(minimum: number | null, maximum: number | null) {
   if (minimum === null) return "n/a";
   if (maximum === null) return formatCurrency(minimum);
   return `${formatCurrency(minimum)} - ${formatCurrency(maximum)}`;
+}
+
+function displayProjectNotes(notes: string | null) {
+  return notes?.replace(/\[seed:[^\]]+\]/g, "").trim() ?? "";
 }
