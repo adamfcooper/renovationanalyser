@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Check, FileCheck2, LoaderCircle, ReceiptText, RotateCcw, Upload } from "lucide-react";
-import { addRenovationCostItemAction } from "@/app/actions";
+import { Check, FileCheck2, LoaderCircle, Plus, ReceiptText, RotateCcw, Trash2, Upload } from "lucide-react";
+import { addRenovationReceiptItemsAction } from "@/app/actions";
 import { suggestReceiptDetails } from "@/lib/receipt";
 
 const roomOptions = [
@@ -20,8 +20,8 @@ const roomOptions = [
 ];
 
 type ReviewDetails = {
-  amount: string;
-  description: string;
+  items: { amount: string; description: string; id: string }[];
+  receiptTotal: string;
   supplier: string;
 };
 
@@ -36,6 +36,11 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
   const [error, setError] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [isSaving, startSaving] = useTransition();
+  const lineItemsTotal = review
+    ? Math.round(review.items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) * 100) / 100
+    : 0;
+  const receiptTotal = Number(review?.receiptTotal);
+  const totalsMatch = review ? Number.isFinite(receiptTotal) && Math.abs(lineItemsTotal - receiptTotal) <= 0.02 : false;
 
   useEffect(() => {
     return () => {
@@ -74,7 +79,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
     setProgress(0.02);
 
     try {
-      const { createWorker } = await import("tesseract.js");
+      const { createWorker, PSM } = await import("tesseract.js");
       const worker = await createWorker("eng", undefined, {
         logger(message) {
           if (message.status === "recognizing text") setProgress(message.progress);
@@ -82,11 +87,20 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
       });
 
       try {
+        await worker.setParameters({
+          preserve_interword_spaces: "1",
+          tessedit_pageseg_mode: PSM.SPARSE_TEXT,
+          user_defined_dpi: "300",
+        });
         const result = await worker.recognize(file, { rotateAuto: true });
         const suggestion = suggestReceiptDetails(result.data.text);
         setReview({
-          amount: suggestion.amount?.toFixed(2) ?? "",
-          description: suggestion.description,
+          items: suggestion.items.map((item) => ({
+            amount: item.amount > 0 ? item.amount.toFixed(2) : "",
+            description: item.description,
+            id: crypto.randomUUID(),
+          })),
+          receiptTotal: suggestion.amount?.toFixed(2) ?? "",
           supplier: suggestion.supplier,
         });
       } finally {
@@ -110,9 +124,30 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
 
   function approveReceipt(formData: FormData) {
     startSaving(async () => {
-      await addRenovationCostItemAction(formData);
+      await addRenovationReceiptItemsAction(formData);
       reset();
       router.refresh();
+    });
+  }
+
+  function updateItem(id: string, changes: Partial<ReviewDetails["items"][number]>) {
+    if (!review) return;
+    setReview({
+      ...review,
+      items: review.items.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+    });
+  }
+
+  function removeItem(id: string) {
+    if (!review) return;
+    setReview({ ...review, items: review.items.filter((item) => item.id !== id) });
+  }
+
+  function addItem() {
+    if (!review) return;
+    setReview({
+      ...review,
+      items: [...review.items, { amount: "", description: "", id: crypto.randomUUID() }],
     });
   }
 
@@ -206,36 +241,18 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
             </div>
             <input name="projectId" type="hidden" value={projectId} />
             <input name="tag" type="hidden" value={room} />
-            <input name="purchased" type="hidden" value="on" />
-            <input name="notes" type="hidden" value="Added from an approved receipt scan." />
+            <input
+              name="items"
+              type="hidden"
+              value={JSON.stringify(
+                review.items.map((item) => ({
+                  amount: Number(item.amount),
+                  description: item.description,
+                })),
+              )}
+            />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm font-medium text-slate-200 sm:col-span-2">
-                Product description
-                <input
-                  className="h-10 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
-                  name="name"
-                  onChange={(event) => setReview({ ...review, description: event.target.value })}
-                  required
-                  value={review.description}
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium text-slate-200">
-                Amount
-                <span className="flex h-10 overflow-hidden rounded-md border border-slate-700 bg-[#111318] focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20">
-                  <span className="grid w-10 place-items-center border-r border-slate-700 text-slate-400">£</span>
-                  <input
-                    className="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none"
-                    min="0.01"
-                    name="amount"
-                    onChange={(event) => setReview({ ...review, amount: event.target.value })}
-                    required
-                    step="0.01"
-                    type="number"
-                    value={review.amount}
-                  />
-                </span>
-              </label>
               <label className="grid gap-1.5 text-sm font-medium text-slate-200">
                 Supplier
                 <input
@@ -246,6 +263,85 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                   value={review.supplier}
                 />
               </label>
+              <label className="grid gap-1.5 text-sm font-medium text-slate-200">
+                Receipt total
+                <span className="flex h-10 overflow-hidden rounded-md border border-slate-700 bg-[#111318] focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20">
+                  <span className="grid w-10 place-items-center border-r border-slate-700 text-slate-400">£</span>
+                  <input
+                    className="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none"
+                    min="0.01"
+                    onChange={(event) => setReview({ ...review, receiptTotal: event.target.value })}
+                    required
+                    step="0.01"
+                    type="number"
+                    value={review.receiptTotal}
+                  />
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium text-slate-200">Line items</p>
+                <button
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700 px-2.5 text-xs font-semibold text-slate-300 transition hover:border-sky-400 hover:text-sky-200"
+                  onClick={addItem}
+                  type="button"
+                >
+                  <Plus size={14} />
+                  Add line
+                </button>
+              </div>
+              <div className="mt-2 grid gap-2">
+                {review.items.map((item, index) => (
+                  <div className="grid grid-cols-[minmax(0,1fr)_105px_36px] gap-2" key={item.id}>
+                    <label className="grid gap-1">
+                      <span className="sr-only">Description for line {index + 1}</span>
+                      <input
+                        aria-label={`Description for line ${index + 1}`}
+                        className="h-10 min-w-0 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+                        onChange={(event) => updateItem(item.id, { description: event.target.value })}
+                        placeholder="Product description"
+                        required
+                        value={item.description}
+                      />
+                    </label>
+                    <label className="flex h-10 overflow-hidden rounded-md border border-slate-700 bg-[#111318] focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20">
+                      <span className="grid w-7 shrink-0 place-items-center border-r border-slate-700 text-xs text-slate-400">£</span>
+                      <span className="sr-only">Amount for line {index + 1}</span>
+                      <input
+                        aria-label={`Amount for line ${index + 1}`}
+                        className="min-w-0 flex-1 bg-transparent px-2 text-sm text-white outline-none"
+                        min="0.01"
+                        onChange={(event) => updateItem(item.id, { amount: event.target.value })}
+                        required
+                        step="0.01"
+                        type="number"
+                        value={item.amount}
+                      />
+                    </label>
+                    <button
+                      aria-label={`Remove line ${index + 1}`}
+                      className="grid size-9 place-items-center self-center rounded-md border border-slate-700 text-slate-400 transition hover:border-rose-400 hover:bg-rose-500/10 hover:text-rose-200"
+                      disabled={review.items.length === 1}
+                      onClick={() => removeItem(item.id)}
+                      type="button"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div
+                className={`mt-3 flex items-center justify-between rounded-md border px-3 py-2 text-sm ${
+                  totalsMatch
+                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                    : "border-amber-500/40 bg-amber-500/10 text-amber-200"
+                }`}
+              >
+                <span>{totalsMatch ? "Line items match the receipt" : "Line items do not yet match the receipt"}</span>
+                <strong>£{lineItemsTotal.toFixed(2)} / £{Number.isFinite(receiptTotal) ? receiptTotal.toFixed(2) : "0.00"}</strong>
+              </div>
             </div>
 
             <div>
@@ -280,11 +376,11 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
               </button>
               <button
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-wait disabled:opacity-60"
-                disabled={isSaving}
+                disabled={isSaving || !totalsMatch || review.items.length === 0}
                 type="submit"
               >
                 {isSaving ? <LoaderCircle className="animate-spin" size={17} /> : <Check size={17} />}
-                {isSaving ? "Adding purchase..." : "Approve and add purchase"}
+                {isSaving ? "Adding purchases..." : `Approve and add ${review.items.length} ${review.items.length === 1 ? "item" : "items"}`}
               </button>
             </div>
           </div>

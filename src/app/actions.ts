@@ -305,6 +305,54 @@ export async function addRenovationCostItemAction(formData: FormData) {
   revalidatePath(`/projects/${projectId}`);
 }
 
+export async function addRenovationReceiptItemsAction(formData: FormData) {
+  const projectId = text(formData, "projectId");
+  const tag = text(formData, "tag") || null;
+  const supplier = text(formData, "supplier") || null;
+  const rawItems = text(formData, "items", "[]");
+
+  if (!projectId) return;
+
+  let parsedItems: unknown;
+  try {
+    parsedItems = JSON.parse(rawItems);
+  } catch {
+    return;
+  }
+
+  if (!Array.isArray(parsedItems)) return;
+
+  const items = parsedItems
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const name = "description" in item && typeof item.description === "string" ? item.description.trim() : "";
+      const amount = "amount" in item ? Number(item.amount) : Number.NaN;
+      return name && Number.isFinite(amount) && amount > 0 ? { amount, name } : null;
+    })
+    .filter((item): item is { amount: number; name: string } => Boolean(item))
+    .slice(0, 50);
+
+  if (items.length === 0) return;
+
+  const purchasedAt = new Date();
+  await getDb().renovationCostItem.createMany({
+    data: items.map((item) => ({
+      projectId,
+      name: item.name,
+      tag,
+      amount: item.amount,
+      purchased: true,
+      supplier,
+      notes: "Added from an approved receipt scan.",
+      purchasedAt,
+    })),
+  });
+
+  revalidatePath("/");
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+}
+
 export async function updateRenovationCostItemStatusAction(formData: FormData) {
   const projectId = text(formData, "projectId");
   const itemId = text(formData, "itemId");
