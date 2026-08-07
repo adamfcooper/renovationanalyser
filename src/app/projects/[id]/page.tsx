@@ -69,9 +69,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         trackedTotal={trackedTotal}
       />
 
-      <section className="mt-6 rounded-md border border-neutral-300 bg-white p-4">
-        <h2 className="text-base font-semibold text-neutral-950">Property summary</h2>
-        <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+      <CollapsedSection title="Property summary">
+        <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <Summary label="Type" value={labelize(project.propertyType)} />
           <SummaryLink label="Listing link" href={project.projectLink} />
           <Summary label="Total size" value={formatNumber(project.internalSqFt, " sq ft")} />
@@ -89,12 +88,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <Summary label="Break-even sale price" value={formatCurrency(metrics.breakEvenSalePrice)} />
           <Summary label="Profit £/sq ft" value={formatCurrency(metrics.profitPerSqFt)} />
         </dl>
-      </section>
+      </CollapsedSection>
 
-      <section className="mt-6 rounded-md border border-neutral-300 bg-white">
-        <div className="border-b border-neutral-300 px-4 py-3">
-          <h2 className="text-base font-semibold text-neutral-950">Sale price guidance</h2>
-        </div>
+      <CollapsedSection title="Sale price guidance">
         <table className="w-full text-sm">
           <tbody>
             {metrics.salePriceGuidance.map((band) => (
@@ -105,17 +101,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             ))}
           </tbody>
         </table>
-      </section>
+      </CollapsedSection>
 
       {calculation.warnings.length > 0 ? (
-        <section className="mt-6 rounded-md border border-neutral-300 bg-white p-4">
-          <h2 className="text-base font-semibold text-neutral-950">Warnings</h2>
-          <ul className="mt-3 grid gap-2 text-sm text-neutral-700">
+        <CollapsedSection title="Warnings">
+          <ul className="grid gap-2 text-sm text-neutral-700">
             {calculation.warnings.map((warning) => (
               <li key={warning}>{warning}</li>
             ))}
           </ul>
-        </section>
+        </CollapsedSection>
       ) : null}
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -126,12 +121,23 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {displayProjectNotes(project.notes) ? (
-        <section className="mt-6 rounded-md border border-neutral-300 bg-white p-4">
-          <h2 className="text-base font-semibold text-neutral-950">Notes</h2>
-          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-neutral-700">{displayProjectNotes(project.notes)}</p>
-        </section>
+        <CollapsedSection title="Notes">
+          <p className="whitespace-pre-wrap text-sm leading-6 text-neutral-700">{displayProjectNotes(project.notes)}</p>
+        </CollapsedSection>
       ) : null}
     </>
+  );
+}
+
+function CollapsedSection({ children, title }: { children: React.ReactNode; title: string }) {
+  return (
+    <details className="group mt-6 rounded-md border border-neutral-300 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+        <h2 className="text-base font-semibold text-neutral-950">{title}</h2>
+        <ChevronDown className="text-neutral-500 transition group-open:rotate-180" size={18} />
+      </summary>
+      <div className="border-t border-neutral-300 p-4">{children}</div>
+    </details>
   );
 }
 

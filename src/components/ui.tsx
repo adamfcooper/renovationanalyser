@@ -75,28 +75,31 @@ export function ScoreBadge({ score }: { score: DealScore }) {
 
 export function CostTable({ title, section }: { title: string; section: CostSection }) {
   return (
-    <section className="rounded-md border border-neutral-300 bg-white">
-      <div className="border-b border-neutral-300 px-4 py-3">
+    <details className="group rounded-md border border-neutral-300 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
         <h2 className="text-base font-semibold text-neutral-950">{title}</h2>
-      </div>
-      <table className="w-full text-sm">
-        <tbody>
-          {section.lines.map((line) => (
-            <tr key={line.label} className="border-b border-neutral-200 last:border-0">
-              <td className="px-4 py-2.5 text-neutral-700">
-                <span className="block">{line.label}</span>
-                {line.working ? <span className="mt-1 block text-xs text-neutral-500">{line.working}</span> : null}
-              </td>
-              <td className="px-4 py-2.5 text-right font-medium text-neutral-950">{formatCurrency(line.amount)}</td>
+        <span className="text-sm font-semibold text-neutral-700">{formatCurrency(section.total)}</span>
+      </summary>
+      <div className="border-t border-neutral-300">
+        <table className="w-full text-sm">
+          <tbody>
+            {section.lines.map((line) => (
+              <tr key={line.label} className="border-b border-neutral-200 last:border-0">
+                <td className="px-4 py-2.5 text-neutral-700">
+                  <span className="block">{line.label}</span>
+                  {line.working ? <span className="mt-1 block text-xs text-neutral-500">{line.working}</span> : null}
+                </td>
+                <td className="px-4 py-2.5 text-right font-medium text-neutral-950">{formatCurrency(line.amount)}</td>
+              </tr>
+            ))}
+            <tr className="bg-neutral-50">
+              <td className="px-4 py-3 font-semibold text-neutral-950">Total</td>
+              <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(section.total)}</td>
             </tr>
-          ))}
-          <tr className="bg-neutral-50">
-            <td className="px-4 py-3 font-semibold text-neutral-950">Total</td>
-            <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(section.total)}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
 
