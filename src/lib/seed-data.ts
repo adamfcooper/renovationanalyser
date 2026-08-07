@@ -119,7 +119,7 @@ const costItem = (
   purchased: true,
   supplier: null,
   purchaseUrl: options.purchaseUrl ?? null,
-  notes: options.notes ?? "Imported from Erica Dr Reno supply sheet.",
+  notes: options.notes ?? null,
 });
 
 export const ericaDriveStarterItemNames = [
@@ -173,9 +173,7 @@ export const ericaDriveCostItems = [
     purchaseUrl: "https://www.appliancesdirect.co.uk/p/eqovenm1ss/electriq-eqovenm1ss--electric-oven",
   }),
   costItem("Kitchen", "Kitchen delivery charge", 75),
-  costItem("Kitchen", "Kitchen reduction", -669.09, {
-    notes: "15% reduction from Erica Dr Reno supply sheet.",
-  }),
+  costItem("Kitchen", "Kitchen reduction", -669.09),
   costItem("Bathroom", "Rimless Slim Round Toilet set", 0),
   costItem("Bathroom", "Vertical Towel radiator", 145.59),
   costItem("Bathroom", "Shower tray 1000x760", 200),
@@ -194,9 +192,7 @@ export const ericaDriveCostItems = [
   costItem("Bathroom", "Shower doors", 282),
   costItem("Bathroom", "Shower tray 1000x760 additional", 180),
   costItem("Bathroom", "Bathroom delivery charge", 35),
-  costItem("Bathroom", "Bathroom reduction", -307.74, {
-    notes: "15% reduction from Erica Dr Reno supply sheet.",
-  }),
+  costItem("Bathroom", "Bathroom reduction", -307.74),
   costItem("Flooring", "Carpet supply and fit", 1546),
   costItem("Misc", "Paint", 92.5),
   costItem("Misc", "Internal doors including handles", 250),
@@ -205,7 +201,5 @@ export const ericaDriveCostItems = [
   costItem("Misc", "Labour cost", 385),
   costItem("Misc", "Masonry bolster", 9.99),
   costItem("Flooring", "8x floorboards & 8x 2x4 timber", 31.9),
-  costItem("Misc", "Supply sheet rounding adjustment", 0.01, {
-    notes: "One-penny adjustment so itemised rows match the supply sheet headline total of £9,711.73.",
-  }),
+  costItem("Misc", "Supply sheet rounding adjustment", 0.01),
 ];

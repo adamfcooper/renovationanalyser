@@ -123,6 +123,7 @@ async function ensureEricaDriveCostItems(projectId: string) {
       data: {
         purchased: true,
         purchasedAt: new Date(),
+        notes: null,
       },
     });
     await db.project.update({
