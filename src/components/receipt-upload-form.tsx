@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Check, FileCheck2, LoaderCircle, Plus, ReceiptText, RotateCcw, Trash2, Upload } from "lucide-react";
 import { addRenovationReceiptItemsAction } from "@/app/actions";
+import { costSectionOptions } from "@/lib/cost-sections";
 import { suggestReceiptDetails } from "@/lib/receipt";
-
-const roomOptions = ["Kitchen", "Bathroom", "Misc"];
 
 type ReviewDetails = {
   items: { amount: string; description: string; id: string }[];
@@ -185,9 +184,9 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
 
           <div className="grid content-start gap-4">
             <fieldset>
-              <legend className="text-sm font-medium text-neutral-800">Which room is it for?</legend>
+              <legend className="text-sm font-medium text-neutral-800">Which section is it for?</legend>
               <div className="mt-2 flex flex-wrap gap-2">
-                {roomOptions.map((option) => (
+                {costSectionOptions.map((option) => (
                   <label key={option}>
                     <input
                       checked={room === option}
@@ -335,9 +334,9 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-neutral-800">Room</p>
+              <p className="text-sm font-medium text-neutral-800">Section</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {roomOptions.map((option) => (
+                {costSectionOptions.map((option) => (
                   <button
                     className={`h-9 rounded-md border px-3 text-sm font-medium transition ${
                       room === option

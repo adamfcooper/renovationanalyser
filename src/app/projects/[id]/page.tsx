@@ -8,6 +8,7 @@ import {
 import { PurchasedStatusForm } from "@/components/purchased-status-form";
 import { ReceiptUploadForm } from "@/components/receipt-upload-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
+import { costSectionOptions } from "@/lib/cost-sections";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
 import { liveCostGroupForTag, renovationTag } from "@/lib/tags";
@@ -134,7 +135,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </div>
         ) : (
           <div className="border-b border-neutral-300 p-4 text-sm text-neutral-500">
-            No live costs tracked yet. Add purchases, planned items, supplier links, and tags below.
+            No live costs tracked yet. Add purchases, planned items, supplier links, and choose a section below.
           </div>
         )}
 
@@ -147,14 +148,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               name="name"
               placeholder="Tiles, taps, paint..."
               required
-            />
-          </label>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
-            Tag
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              name="tag"
-              placeholder="Misc"
             />
           </label>
           <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
@@ -185,6 +178,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               type="url"
             />
           </label>
+          <fieldset className="grid gap-2 lg:col-span-6">
+            <legend className="text-sm font-medium text-neutral-800">Which section is it for?</legend>
+            <div className="flex flex-wrap gap-2">
+              {costSectionOptions.map((option) => (
+                <label key={option}>
+                  <input
+                    className="peer sr-only"
+                    defaultChecked={option === "Misc"}
+                    name="tag"
+                    required
+                    type="radio"
+                    value={option}
+                  />
+                  <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white">
+                    {option}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <label className="grid gap-1.5 text-sm font-medium text-neutral-800 lg:col-span-4">
             Notes
             <input
