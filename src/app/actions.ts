@@ -379,6 +379,31 @@ export async function updateRenovationCostItemStatusAction(formData: FormData) {
   revalidatePath(`/projects/${projectId}`);
 }
 
+export async function updateRenovationCostItemAction(formData: FormData) {
+  const projectId = text(formData, "projectId");
+  const itemId = text(formData, "itemId");
+  const name = text(formData, "name");
+  const amount = number(formData, "amount");
+
+  if (!projectId || !itemId || !name || amount < 0) return;
+
+  await getDb().renovationCostItem.update({
+    where: { id: itemId },
+    data: {
+      name,
+      tag: renovationTag(text(formData, "tag")),
+      amount,
+      supplier: text(formData, "supplier") || null,
+      purchaseUrl: text(formData, "purchaseUrl") || null,
+      notes: text(formData, "notes") || null,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+}
+
 export async function deleteRenovationCostItemAction(formData: FormData) {
   const projectId = text(formData, "projectId");
   const itemId = text(formData, "itemId");
