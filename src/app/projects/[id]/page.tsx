@@ -228,7 +228,7 @@ function LiveCostGroup({
   projectId: string;
 }) {
   return (
-    <details className="group rounded-md border border-neutral-300 bg-white" open>
+    <details className="group rounded-md border border-neutral-300 bg-white">
       <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3 marker:hidden">
         <div>
           <h3 className="font-semibold text-neutral-950">{group.title}</h3>
