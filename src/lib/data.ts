@@ -42,6 +42,11 @@ export async function getProjects() {
       orderBy: { createdAt: "desc" },
       include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
     });
+  } else if (ericaProject && (await clearEricaDriveCostItemNotes(ericaProject.id))) {
+    projects = await db.project.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
+    });
   }
 
   return projects;
@@ -51,10 +56,19 @@ export async function getProject(id: string) {
   const db = getDb();
   await ensureMiscTags();
 
-  return db.project.findUnique({
+  const project = await db.project.findUnique({
     where: { id },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
+
+  if (project?.name === ericaDriveProject.name && (await clearEricaDriveCostItemNotes(project.id))) {
+    return db.project.findUnique({
+      where: { id },
+      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
+    });
+  }
+
+  return project;
 }
 
 export async function getCalculatedProjects() {
@@ -151,6 +165,19 @@ async function ensureEricaDriveCostItems(projectId: string) {
     where: { id: projectId },
     data: { notes: existingProjectNotesWithMarker(await getProjectNotes(projectId)) },
   });
+}
+
+async function clearEricaDriveCostItemNotes(projectId: string) {
+  const result = await getDb().renovationCostItem.updateMany({
+    where: {
+      projectId,
+      name: { in: ericaDriveCostItems.map((item) => item.name) },
+      notes: { not: null },
+    },
+    data: { notes: null },
+  });
+
+  return result.count > 0;
 }
 
 async function getProjectNotes(projectId: string) {
