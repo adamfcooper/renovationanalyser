@@ -38,8 +38,8 @@ export function NewDealForm({ action }: { action: (formData: FormData) => void |
 
   return (
     <form action={action} className="grid gap-6">
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Property and pricing</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Property and pricing</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Field label="Project name" name="name" required />
           <Field label="Project link" name="projectLink" type="url" />
@@ -51,8 +51,8 @@ export function NewDealForm({ action }: { action: (formData: FormData) => void |
         </div>
       </section>
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Renovation scope</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Renovation scope</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <CheckboxField label="Needs new kitchen" name="needsKitchen" />
           <CheckboxField label="Needs new bathroom" name="needsBathroom" />
@@ -99,8 +99,8 @@ export function NewDealForm({ action }: { action: (formData: FormData) => void |
         </div>
       </section>
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Holding, finance and targets</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Holding, finance and targets</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Finance type" name="financeType" defaultValue="MORTGAGE" options={financeTypes} />
           <Field label="Deposit amount" name="depositAmount" type="number" step="0.01" />
@@ -114,7 +114,7 @@ export function NewDealForm({ action }: { action: (formData: FormData) => void |
       </section>
 
       <div className="flex justify-end">
-        <button className="h-11 rounded-md bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400">
+        <button className="h-11 rounded-md bg-neutral-950 px-5 text-sm font-semibold text-white transition hover:bg-neutral-800">
           Generate estimate
         </button>
       </div>

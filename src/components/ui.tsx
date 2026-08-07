@@ -4,10 +4,10 @@ import type { CostSection, DealScore, ScenarioResult } from "@/lib/calculations"
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
 
 const scoreClasses: Record<DealScore, string> = {
-  Excellent: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  Good: "border-cyan-200 bg-cyan-50 text-cyan-800",
-  Marginal: "border-amber-200 bg-amber-50 text-amber-800",
-  Avoid: "border-rose-200 bg-rose-50 text-rose-800",
+  Excellent: "border-neutral-300 bg-white text-neutral-950",
+  Good: "border-neutral-300 bg-white text-neutral-950",
+  Marginal: "border-neutral-300 bg-white text-neutral-950",
+  Avoid: "border-neutral-300 bg-white text-neutral-950",
 };
 
 export function PageHeader({
@@ -22,8 +22,8 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        {eyebrow ? <p className="mb-1 text-sm font-medium text-sky-300">{eyebrow}</p> : null}
-        <h1 className="text-3xl font-semibold tracking-tight text-white">{title}</h1>
+        {eyebrow ? <p className="mb-1 text-sm font-medium text-neutral-500">{eyebrow}</p> : null}
+        <h1 className="text-3xl font-semibold tracking-tight text-neutral-950">{title}</h1>
       </div>
       {action}
     </div>
@@ -34,7 +34,7 @@ export function ButtonLink({ href, children }: { href: string; children: React.R
   return (
     <Link
       href={href}
-      className="inline-flex h-10 items-center justify-center rounded-md bg-sky-500 px-4 text-sm font-semibold text-white transition hover:bg-sky-400"
+      className="inline-flex h-10 items-center justify-center rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800"
     >
       {children}
     </Link>
@@ -51,16 +51,16 @@ export function Metric({
   tone?: "default" | "good" | "warn" | "bad";
 }) {
   const toneClass = {
-    default: "border-slate-700 bg-[#171b22]",
-    good: "border-emerald-500/40 bg-emerald-500/10",
-    warn: "border-amber-500/40 bg-amber-500/10",
-    bad: "border-rose-500/40 bg-rose-500/10",
+    default: "border-neutral-300 bg-white",
+    good: "border-neutral-300 bg-white",
+    warn: "border-neutral-300 bg-white",
+    bad: "border-neutral-300 bg-white",
   }[tone];
 
   return (
     <div className={`rounded-md border p-4 ${toneClass}`}>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{value}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{value}</p>
     </div>
   );
 }
@@ -75,24 +75,24 @@ export function ScoreBadge({ score }: { score: DealScore }) {
 
 export function CostTable({ title, section }: { title: string; section: CostSection }) {
   return (
-    <section className="rounded-md border border-slate-700 bg-[#171b22]">
-      <div className="border-b border-slate-700 px-4 py-3">
-        <h2 className="text-base font-semibold text-white">{title}</h2>
+    <section className="rounded-md border border-neutral-300 bg-white">
+      <div className="border-b border-neutral-300 px-4 py-3">
+        <h2 className="text-base font-semibold text-neutral-950">{title}</h2>
       </div>
       <table className="w-full text-sm">
         <tbody>
           {section.lines.map((line) => (
-            <tr key={line.label} className="border-b border-slate-800 last:border-0">
-              <td className="px-4 py-2.5 text-slate-300">
+            <tr key={line.label} className="border-b border-neutral-200 last:border-0">
+              <td className="px-4 py-2.5 text-neutral-700">
                 <span className="block">{line.label}</span>
-                {line.working ? <span className="mt-1 block text-xs text-slate-500">{line.working}</span> : null}
+                {line.working ? <span className="mt-1 block text-xs text-neutral-500">{line.working}</span> : null}
               </td>
-              <td className="px-4 py-2.5 text-right font-medium text-white">{formatCurrency(line.amount)}</td>
+              <td className="px-4 py-2.5 text-right font-medium text-neutral-950">{formatCurrency(line.amount)}</td>
             </tr>
           ))}
-          <tr className="bg-[#202733]">
-            <td className="px-4 py-3 font-semibold text-white">Total</td>
-            <td className="px-4 py-3 text-right font-semibold text-white">{formatCurrency(section.total)}</td>
+          <tr className="bg-neutral-50">
+            <td className="px-4 py-3 font-semibold text-neutral-950">Total</td>
+            <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(section.total)}</td>
           </tr>
         </tbody>
       </table>
@@ -104,12 +104,12 @@ export function SensitivityTable({ scenarios }: { scenarios: ScenarioResult[] })
   return (
     <section className="rounded-md border border-slate-200 bg-white">
       <div className="border-b border-slate-200 px-4 py-3">
-        <h2 className="text-base font-semibold text-slate-950">Sensitivity Analysis</h2>
+        <h2 className="text-base font-semibold text-neutral-950">Sensitivity Analysis</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+            <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-neutral-500">
               <th className="px-4 py-3">Scenario</th>
               <th className="px-4 py-3 text-right">Sale price</th>
               <th className="px-4 py-3 text-right">Renovation</th>
@@ -123,7 +123,7 @@ export function SensitivityTable({ scenarios }: { scenarios: ScenarioResult[] })
           <tbody>
             {scenarios.map((scenario) => (
               <tr key={scenario.name} className="border-b border-slate-100 last:border-0">
-                <td className="px-4 py-3 font-medium text-slate-950">{scenario.name}</td>
+                <td className="px-4 py-3 font-medium text-neutral-950">{scenario.name}</td>
                 <td className="px-4 py-3 text-right">{formatCurrency(scenario.salePrice)}</td>
                 <td className="px-4 py-3 text-right">{formatCurrency(scenario.renovationCosts)}</td>
                 <td className="px-4 py-3 text-right">{formatNumber(scenario.holdingMonths)}</td>
@@ -158,10 +158,10 @@ export function Field({
   disabled?: boolean;
 }) {
   return (
-    <label className={`grid gap-1.5 text-sm font-medium ${disabled ? "text-slate-500" : "text-slate-200"}`}>
+    <label className={`grid gap-1.5 text-sm font-medium ${disabled ? "text-neutral-400" : "text-neutral-800"}`}>
       {label}
       <input
-        className="h-10 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition placeholder:text-slate-500 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-900 disabled:text-slate-600 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+        className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-400 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400 focus:border-neutral-950"
         name={name}
         type={type}
         defaultValue={defaultValue ?? ""}
@@ -189,10 +189,10 @@ export function SelectField({
   options: { label: string; value: string }[];
 }) {
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-slate-200">
+    <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
       {label}
       <select
-        className="h-10 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+        className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
         name={name}
         defaultValue={defaultValue}
         value={value}
@@ -222,10 +222,10 @@ export function CheckboxField({
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex min-h-10 items-center gap-3 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm font-medium text-slate-200">
+    <label className="flex min-h-10 items-center gap-3 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-800">
       <input
         checked={checked}
-        className="size-4 accent-sky-500"
+        className="size-4 accent-neutral-950"
         name={name}
         type="checkbox"
         defaultChecked={defaultChecked}

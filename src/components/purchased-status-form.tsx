@@ -34,10 +34,10 @@ export function PurchasedStatusForm({
   }
 
   return (
-    <div aria-label={`Set purchase status for ${itemName}`} className="inline-grid grid-cols-2 rounded-md border border-slate-700 bg-[#111318] p-1">
+    <div aria-label={`Set purchase status for ${itemName}`} className="inline-grid grid-cols-2 rounded-md border border-neutral-300 bg-white p-1">
       <button
         className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
-          optimisticPurchased ? "text-slate-400 hover:text-white" : "bg-amber-400 text-slate-950"
+          optimisticPurchased ? "text-neutral-500 hover:text-neutral-950" : "bg-neutral-950 text-white"
         }`}
         disabled={isPending}
         onClick={() => updateStatus(false)}
@@ -47,7 +47,7 @@ export function PurchasedStatusForm({
       </button>
       <button
         className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
-          optimisticPurchased ? "bg-emerald-400 text-slate-950" : "text-slate-400 hover:text-white"
+          optimisticPurchased ? "bg-neutral-950 text-white" : "text-neutral-500 hover:text-neutral-950"
         }`}
         disabled={isPending}
         onClick={() => updateStatus(true)}

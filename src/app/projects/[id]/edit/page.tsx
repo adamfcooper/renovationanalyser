@@ -15,7 +15,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <Link href={`/projects/${project.id}`} className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-800">
+      <Link href={`/projects/${project.id}`} className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-neutral-700 hover:text-neutral-950">
         <ArrowLeft size={16} />
         {project.name}
       </Link>

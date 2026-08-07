@@ -88,8 +88,8 @@ export function EditProjectForm({
     <form action={action} className="grid gap-6">
       <input type="hidden" name="projectId" value={project.id} />
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Property and pricing</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Property and pricing</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Field label="Project name" name="name" defaultValue={project.name} required />
           <Field label="Project link" name="projectLink" type="url" defaultValue={project.projectLink} />
@@ -102,8 +102,8 @@ export function EditProjectForm({
         </div>
       </section>
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Renovation scope</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Renovation scope</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <CheckboxField label="Needs new kitchen" name="needsKitchen" defaultChecked={project.needsKitchen} />
           <CheckboxField label="Needs new bathroom" name="needsBathroom" defaultChecked={project.needsBathroom} />
@@ -165,8 +165,8 @@ export function EditProjectForm({
         </div>
       </section>
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Holding and finance</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Holding and finance</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <SelectField label="Finance type" name="financeType" defaultValue={project.financeType} options={financeTypes} />
           <Field label="Deposit amount" name="depositAmount" type="number" step="0.01" defaultValue={project.depositAmount} />
@@ -179,8 +179,8 @@ export function EditProjectForm({
         </div>
       </section>
 
-      <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-        <h2 className="text-base font-semibold text-white">Fees and notes</h2>
+      <section className="rounded-md border border-neutral-300 bg-white p-4">
+        <h2 className="text-base font-semibold text-neutral-950">Fees and notes</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Field label="Survey" name="survey" type="number" step="0.01" defaultValue={project.survey} />
           <Field label="Purchase legal fees" name="purchaseLegalFees" type="number" step="0.01" defaultValue={project.purchaseLegalFees} />
@@ -189,10 +189,10 @@ export function EditProjectForm({
           <Field label="Sale legal fees" name="saleLegalFees" type="number" step="0.01" defaultValue={project.saleLegalFees} />
           <Field label="Capital gains tax" name="capitalGainsTax" type="number" step="0.01" defaultValue={project.capitalGainsTax} />
           <Field label="Contingency %" name="contingencyPercentage" type="number" step="0.01" defaultValue={project.contingencyPercentage ?? 0} />
-          <label className="grid gap-1.5 text-sm font-medium text-slate-200 md:col-span-2 lg:col-span-4">
+          <label className="grid gap-1.5 text-sm font-medium text-neutral-800 md:col-span-2 lg:col-span-4">
             Notes
             <textarea
-              className="min-h-28 rounded-md border border-slate-700 bg-[#111318] px-3 py-2 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+              className="min-h-28 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
               name="notes"
               defaultValue={project.notes ?? ""}
             />
@@ -201,7 +201,7 @@ export function EditProjectForm({
       </section>
 
       <div className="flex justify-end">
-        <button className="h-11 rounded-md bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400">
+        <button className="h-11 rounded-md bg-neutral-950 px-5 text-sm font-semibold text-white transition hover:bg-neutral-800">
           Save changes
         </button>
       </div>

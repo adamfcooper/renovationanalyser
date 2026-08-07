@@ -142,14 +142,14 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="border-t border-slate-700 p-4">
+    <div className="border-t border-neutral-300 p-4">
       <div className="mb-4 flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-md border border-sky-400/30 bg-sky-400/10 text-sky-300">
+        <span className="grid size-10 shrink-0 place-items-center rounded-md border border-neutral-300 bg-white text-neutral-950">
           <ReceiptText size={20} />
         </span>
         <div>
-          <h3 className="font-semibold text-white">Scan a receipt</h3>
-          <p className="mt-1 text-sm text-slate-400">Photograph a receipt, check the details, then approve it for the tracker.</p>
+          <h3 className="font-semibold text-neutral-950">Scan a receipt</h3>
+          <p className="mt-1 text-sm text-neutral-500">Photograph a receipt, check the details, then approve it for the tracker.</p>
         </div>
       </div>
 
@@ -157,7 +157,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
           <div>
             <button
-              className="flex min-h-40 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-slate-600 bg-[#111318] px-4 text-center transition hover:border-sky-400 hover:bg-sky-400/5"
+              className="flex min-h-40 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-neutral-300 bg-white px-4 text-center transition hover:border-neutral-950 hover:bg-neutral-800/5"
               disabled={isScanning}
               onClick={() => inputRef.current?.click()}
               type="button"
@@ -168,9 +168,9 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                 </span>
               ) : (
                 <>
-                  <Upload className="text-sky-300" size={24} />
-                  <span className="font-medium text-white">Take a photo or choose one</span>
-                  <span className="text-xs text-slate-500">JPG, PNG or WebP, up to 12 MB</span>
+                  <Upload className="text-neutral-950" size={24} />
+                  <span className="font-medium text-neutral-950">Take a photo or choose one</span>
+                  <span className="text-xs text-neutral-500">JPG, PNG or WebP, up to 12 MB</span>
                 </>
               )}
             </button>
@@ -185,7 +185,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
 
           <div className="grid content-start gap-4">
             <fieldset>
-              <legend className="text-sm font-medium text-slate-200">Which room is it for?</legend>
+              <legend className="text-sm font-medium text-neutral-800">Which room is it for?</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {roomOptions.map((option) => (
                   <label key={option}>
@@ -197,7 +197,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                       type="radio"
                       value={option}
                     />
-                    <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-slate-700 bg-[#111318] px-3 text-sm font-medium text-slate-300 transition peer-checked:border-sky-400 peer-checked:bg-sky-400/15 peer-checked:text-sky-200">
+                    <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white">
                       {option}
                     </span>
                   </label>
@@ -205,10 +205,10 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
               </div>
             </fieldset>
 
-            {error ? <p className="rounded-md border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p> : null}
+            {error ? <p className="rounded-md border border-neutral-300 bg-neutral-50 p-3 text-sm text-neutral-800">{error}</p> : null}
 
             <button
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-sky-500 px-4 text-sm font-semibold text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:text-neutral-500"
               disabled={!file || isScanning}
               onClick={scanReceipt}
               type="button"
@@ -220,12 +220,12 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
         </div>
       ) : (
         <form action={approveReceipt} className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="relative min-h-64 overflow-hidden rounded-md border border-slate-700 bg-[#111318]">
+          <div className="relative min-h-64 overflow-hidden rounded-md border border-neutral-300 bg-white">
             <Image alt="Receipt being reviewed" className="object-contain" fill sizes="220px" src={previewUrl} unoptimized />
           </div>
 
           <div className="grid gap-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+            <div className="flex items-center gap-2 text-sm font-semibold text-neutral-950">
               <FileCheck2 size={18} />
               Ready for your approval
             </div>
@@ -243,22 +243,22 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm font-medium text-slate-200">
+              <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
                 Supplier
                 <input
-                  className="h-10 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
                   name="supplier"
                   onChange={(event) => setReview({ ...review, supplier: event.target.value })}
                   placeholder="B&Q"
                   value={review.supplier}
                 />
               </label>
-              <label className="grid gap-1.5 text-sm font-medium text-slate-200">
+              <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
                 Receipt total
-                <span className="flex h-10 overflow-hidden rounded-md border border-slate-700 bg-[#111318] focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20">
-                  <span className="grid w-10 place-items-center border-r border-slate-700 text-slate-400">£</span>
+                <span className="flex h-10 overflow-hidden rounded-md border border-neutral-300 bg-white focus-within:border-neutral-950">
+                  <span className="grid w-10 place-items-center border-r border-neutral-300 text-neutral-500">£</span>
                   <input
-                    className="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none"
+                    className="min-w-0 flex-1 bg-transparent px-3 text-sm text-neutral-950 outline-none"
                     min="0.01"
                     onChange={(event) => setReview({ ...review, receiptTotal: event.target.value })}
                     required
@@ -272,9 +272,9 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
 
             <div>
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-slate-200">Line items</p>
+                <p className="text-sm font-medium text-neutral-800">Line items</p>
                 <button
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-700 px-2.5 text-xs font-semibold text-slate-300 transition hover:border-sky-400 hover:text-sky-200"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-neutral-300 px-2.5 text-xs font-semibold text-neutral-700 transition hover:border-neutral-950 hover:text-neutral-950"
                   onClick={addItem}
                   type="button"
                 >
@@ -289,19 +289,19 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                       <span className="sr-only">Description for line {index + 1}</span>
                       <input
                         aria-label={`Description for line ${index + 1}`}
-                        className="h-10 min-w-0 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
+                        className="h-10 min-w-0 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
                         onChange={(event) => updateItem(item.id, { description: event.target.value })}
                         placeholder="Product description"
                         required
                         value={item.description}
                       />
                     </label>
-                    <label className="flex h-10 overflow-hidden rounded-md border border-slate-700 bg-[#111318] focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/20">
-                      <span className="grid w-7 shrink-0 place-items-center border-r border-slate-700 text-xs text-slate-400">£</span>
+                    <label className="flex h-10 overflow-hidden rounded-md border border-neutral-300 bg-white focus-within:border-neutral-950">
+                      <span className="grid w-7 shrink-0 place-items-center border-r border-neutral-300 text-xs text-neutral-500">£</span>
                       <span className="sr-only">Amount for line {index + 1}</span>
                       <input
                         aria-label={`Amount for line ${index + 1}`}
-                        className="min-w-0 flex-1 bg-transparent px-2 text-sm text-white outline-none"
+                        className="min-w-0 flex-1 bg-transparent px-2 text-sm text-neutral-950 outline-none"
                         min="0.01"
                         onChange={(event) => updateItem(item.id, { amount: event.target.value })}
                         required
@@ -312,7 +312,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                     </label>
                     <button
                       aria-label={`Remove line ${index + 1}`}
-                      className="grid size-9 place-items-center self-center rounded-md border border-slate-700 text-slate-400 transition hover:border-rose-400 hover:bg-rose-500/10 hover:text-rose-200"
+                      className="grid size-9 place-items-center self-center rounded-md border border-neutral-300 text-neutral-500 transition hover:border-neutral-950 hover:text-neutral-950"
                       disabled={review.items.length === 1}
                       onClick={() => removeItem(item.id)}
                       type="button"
@@ -325,8 +325,8 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
               <div
                 className={`mt-3 flex items-center justify-between rounded-md border px-3 py-2 text-sm ${
                   totalsMatch
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                    : "border-amber-500/40 bg-amber-500/10 text-amber-200"
+                    ? "border-neutral-300 bg-neutral-50 text-neutral-800"
+                    : "border-neutral-300 bg-neutral-50 text-neutral-800"
                 }`}
               >
                 <span>{totalsMatch ? "Line items match the receipt" : "Line items do not yet match the receipt"}</span>
@@ -335,14 +335,14 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
             </div>
 
             <div>
-              <p className="text-sm font-medium text-slate-200">Room</p>
+              <p className="text-sm font-medium text-neutral-800">Room</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {roomOptions.map((option) => (
                   <button
                     className={`h-9 rounded-md border px-3 text-sm font-medium transition ${
                       room === option
-                        ? "border-sky-400 bg-sky-400/15 text-sky-200"
-                        : "border-slate-700 bg-[#111318] text-slate-400 hover:text-white"
+                        ? "border-neutral-950 bg-neutral-950 text-white"
+                        : "border-neutral-300 bg-white text-neutral-500 hover:text-neutral-950"
                     }`}
                     key={option}
                     onClick={() => setRoom(option)}
@@ -356,7 +356,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-700 px-4 text-sm font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-700 transition hover:border-neutral-950 hover:text-neutral-950"
                 disabled={isSaving}
                 onClick={reset}
                 type="button"
@@ -365,7 +365,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                 Scan again
               </button>
               <button
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-wait disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-wait disabled:opacity-60"
                 disabled={isSaving || !totalsMatch || review.items.length === 0}
                 type="submit"
               >

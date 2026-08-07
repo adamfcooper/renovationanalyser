@@ -12,8 +12,8 @@ export default async function AssumptionsPage() {
       <PageHeader eyebrow="Assumptions" title="Edit default cost assumptions" />
 
       <form action={updateAssumptionsAction} className="grid gap-6">
-        <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-          <h2 className="text-base font-semibold text-white">Renovation costs</h2>
+        <section className="rounded-md border border-neutral-300 bg-white p-4">
+          <h2 className="text-base font-semibold text-neutral-950">Renovation costs</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MoneyField label="Flooring default" name="flooringDefault" value={assumptions.flooringDefault} />
             <MoneyField label="Decorating default" name="decoratingDefault" value={assumptions.decoratingDefault} />
@@ -30,8 +30,8 @@ export default async function AssumptionsPage() {
           </div>
         </section>
 
-        <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-          <h2 className="text-base font-semibold text-white">Trade labour assumptions</h2>
+        <section className="rounded-md border border-neutral-300 bg-white p-4">
+          <h2 className="text-base font-semibold text-neutral-950">Trade labour assumptions</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MoneyField label="Plumbing hourly rate" name="plumbingDayRate" value={assumptions.plumbingDayRate} />
             <MoneyField label="Electrician hourly rate" name="electricianDayRate" value={assumptions.electricianDayRate} />
@@ -42,8 +42,8 @@ export default async function AssumptionsPage() {
           </div>
         </section>
 
-        <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-          <h2 className="text-base font-semibold text-white">Holding costs</h2>
+        <section className="rounded-md border border-neutral-300 bg-white p-4">
+          <h2 className="text-base font-semibold text-neutral-950">Holding costs</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MoneyField label="Mortgage / finance per month" name="mortgageCostPerMonth" value={assumptions.mortgageCostPerMonth} />
             <MoneyField label="Council tax per month" name="councilTaxPerMonth" value={assumptions.councilTaxPerMonth} />
@@ -52,8 +52,8 @@ export default async function AssumptionsPage() {
           </div>
         </section>
 
-        <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-          <h2 className="text-base font-semibold text-white">Acquisition costs</h2>
+        <section className="rounded-md border border-neutral-300 bg-white p-4">
+          <h2 className="text-base font-semibold text-neutral-950">Acquisition costs</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MoneyField label="Purchase legal fees" name="purchaseLegalFees" value={assumptions.purchaseLegalFees} />
             <MoneyField label="Survey" name="survey" value={assumptions.survey} />
@@ -61,8 +61,8 @@ export default async function AssumptionsPage() {
           </div>
         </section>
 
-        <section className="rounded-md border border-slate-700 bg-[#171b22] p-4">
-          <h2 className="text-base font-semibold text-white">Disposal costs</h2>
+        <section className="rounded-md border border-neutral-300 bg-white p-4">
+          <h2 className="text-base font-semibold text-neutral-950">Disposal costs</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Field label="Estate agent %" name="estateAgentPercentage" type="number" step="0.01" defaultValue={assumptions.estateAgentPercentage} />
             <MoneyField label="Sale legal fees" name="saleLegalFees" value={assumptions.saleLegalFees} />
@@ -70,7 +70,7 @@ export default async function AssumptionsPage() {
         </section>
 
         <div className="flex justify-end">
-          <button className="h-11 rounded-md bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400">
+          <button className="h-11 rounded-md bg-neutral-950 px-5 text-sm font-semibold text-white transition hover:bg-neutral-800">
             Save assumptions
           </button>
         </div>

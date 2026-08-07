@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #111318;
-  --foreground: #f8fafc;
+  --background: #f6f6f6;
+  --foreground: #111111;
 }
 
 @theme inline {
@@ -27,4 +27,87 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+/*
+  Simplified visual system: neutral surfaces, plain borders, no colour glow,
+  no glass treatment. This intentionally overrides older utility classes so
+  the whole tool moves together without touching every old class string.
+*/
+[class*="backdrop-blur"],
+[class*="shadow"] {
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+[class*="bg-gradient"] {
+  background-image: none !important;
+}
+
+[class*="bg-[#090b10]"],
+[class*="bg-[#111318]"],
+[class*="bg-[#171b22]"],
+[class*="bg-[#202733]"],
+[class*="bg-white/["],
+[class*="bg-black/"] {
+  background-color: #ffffff !important;
+}
+
+[class*="border-white/"],
+[class*="border-slate"],
+[class*="border-sky"],
+[class*="border-emerald"],
+[class*="border-amber"],
+[class*="border-rose"] {
+  border-color: #d4d4d4 !important;
+}
+
+[class*="text-neutral-950"],
+[class*="text-slate-100"],
+[class*="text-neutral-800"],
+[class*="text-sky"],
+[class*="text-emerald"],
+[class*="text-amber"],
+[class*="text-rose"],
+[class*="text-cyan"] {
+  color: #111111 !important;
+}
+
+[class*="text-neutral-700"],
+[class*="text-neutral-500"],
+[class*="placeholder:text-neutral-500"]::placeholder {
+  color: #6b6b6b !important;
+}
+
+[class*="bg-sky"],
+[class*="bg-emerald"],
+[class*="bg-amber"],
+[class*="bg-rose"],
+[class*="bg-cyan"] {
+  background-color: #111111 !important;
+}
+
+button[class*="bg-sky"],
+button[class*="bg-emerald"],
+a[class*="bg-sky"],
+.peer:checked + span,
+button[class*="bg-white"] {
+  background-color: #111111 !important;
+  border-color: #111111 !important;
+  color: #ffffff !important;
+}
+
+input,
+select,
+textarea {
+  background: #ffffff !important;
+  border-color: #d4d4d4 !important;
+  color: #111111 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #111111 !important;
+  box-shadow: none !important;
 }
