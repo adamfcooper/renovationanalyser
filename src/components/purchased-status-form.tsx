@@ -37,7 +37,7 @@ export function PurchasedStatusForm({
     <div aria-label={`Set purchase status for ${itemName}`} className="inline-grid grid-cols-2 rounded-md border border-neutral-300 bg-white p-1">
       <button
         className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
-          optimisticPurchased ? "text-neutral-500 hover:text-neutral-950" : "bg-neutral-950 text-white"
+          optimisticPurchased ? "text-neutral-500 hover:text-neutral-950" : "bg-amber-100 text-amber-900"
         }`}
         disabled={isPending}
         onClick={() => updateStatus(false)}
@@ -47,7 +47,7 @@ export function PurchasedStatusForm({
       </button>
       <button
         className={`h-8 rounded px-2 text-xs font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
-          optimisticPurchased ? "bg-neutral-950 text-white" : "text-neutral-500 hover:text-neutral-950"
+          optimisticPurchased ? "bg-emerald-100 text-emerald-900" : "text-neutral-500 hover:text-neutral-950"
         }`}
         disabled={isPending}
         onClick={() => updateStatus(true)}

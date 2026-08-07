@@ -4,10 +4,10 @@ import type { CostSection, DealScore, ScenarioResult } from "@/lib/calculations"
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/format";
 
 const scoreClasses: Record<DealScore, string> = {
-  Excellent: "border-neutral-300 bg-white text-neutral-950",
-  Good: "border-neutral-300 bg-white text-neutral-950",
-  Marginal: "border-neutral-300 bg-white text-neutral-950",
-  Avoid: "border-neutral-300 bg-white text-neutral-950",
+  Excellent: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  Good: "border-sky-200 bg-sky-50 text-sky-800",
+  Marginal: "border-amber-200 bg-amber-50 text-amber-800",
+  Avoid: "border-rose-200 bg-rose-50 text-rose-800",
 };
 
 export function PageHeader({
@@ -52,9 +52,9 @@ export function Metric({
 }) {
   const toneClass = {
     default: "border-neutral-300 bg-white",
-    good: "border-neutral-300 bg-white",
-    warn: "border-neutral-300 bg-white",
-    bad: "border-neutral-300 bg-white",
+    good: "border-emerald-200 bg-emerald-50",
+    warn: "border-amber-200 bg-amber-50",
+    bad: "border-rose-200 bg-rose-50",
   }[tone];
 
   return (

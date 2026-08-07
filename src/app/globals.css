@@ -53,50 +53,6 @@ textarea {
   background-color: #ffffff !important;
 }
 
-[class*="border-white/"],
-[class*="border-slate"],
-[class*="border-sky"],
-[class*="border-emerald"],
-[class*="border-amber"],
-[class*="border-rose"] {
-  border-color: #d4d4d4 !important;
-}
-
-[class*="text-neutral-950"],
-[class*="text-slate-100"],
-[class*="text-neutral-800"],
-[class*="text-sky"],
-[class*="text-emerald"],
-[class*="text-amber"],
-[class*="text-rose"],
-[class*="text-cyan"] {
-  color: #111111 !important;
-}
-
-[class*="text-neutral-700"],
-[class*="text-neutral-500"],
-[class*="placeholder:text-neutral-500"]::placeholder {
-  color: #6b6b6b !important;
-}
-
-[class*="bg-sky"],
-[class*="bg-emerald"],
-[class*="bg-amber"],
-[class*="bg-rose"],
-[class*="bg-cyan"] {
-  background-color: #111111 !important;
-}
-
-button[class*="bg-sky"],
-button[class*="bg-emerald"],
-a[class*="bg-sky"],
-.peer:checked + span,
-button[class*="bg-white"] {
-  background-color: #111111 !important;
-  border-color: #111111 !important;
-  color: #ffffff !important;
-}
-
 input,
 select,
 textarea {

@@ -143,7 +143,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
   return (
     <div className="border-t border-neutral-300 p-4">
       <div className="mb-4 flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-md border border-neutral-300 bg-white text-neutral-950">
+        <span className="grid size-10 shrink-0 place-items-center rounded-md border border-sky-200 bg-sky-50 text-sky-700">
           <ReceiptText size={20} />
         </span>
         <div>
@@ -156,7 +156,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
           <div>
             <button
-              className="flex min-h-40 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-neutral-300 bg-white px-4 text-center transition hover:border-neutral-950 hover:bg-neutral-800/5"
+              className="flex min-h-40 w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-neutral-300 bg-white px-4 text-center transition hover:border-sky-300 hover:bg-sky-50"
               disabled={isScanning}
               onClick={() => inputRef.current?.click()}
               type="button"
@@ -167,7 +167,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                 </span>
               ) : (
                 <>
-                  <Upload className="text-neutral-950" size={24} />
+                  <Upload className="text-sky-700" size={24} />
                   <span className="font-medium text-neutral-950">Take a photo or choose one</span>
                   <span className="text-xs text-neutral-500">JPG, PNG or WebP, up to 12 MB</span>
                 </>
@@ -196,7 +196,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                       type="radio"
                       value={option}
                     />
-                    <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white">
+                    <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-sky-300 peer-checked:bg-sky-50 peer-checked:text-sky-800">
                       {option}
                     </span>
                   </label>
@@ -224,7 +224,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
           </div>
 
           <div className="grid gap-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-neutral-950">
+            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
               <FileCheck2 size={18} />
               Ready for your approval
             </div>
@@ -324,8 +324,8 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
               <div
                 className={`mt-3 flex items-center justify-between rounded-md border px-3 py-2 text-sm ${
                   totalsMatch
-                    ? "border-neutral-300 bg-neutral-50 text-neutral-800"
-                    : "border-neutral-300 bg-neutral-50 text-neutral-800"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : "border-amber-200 bg-amber-50 text-amber-800"
                 }`}
               >
                 <span>{totalsMatch ? "Line items match the receipt" : "Line items do not yet match the receipt"}</span>
@@ -340,7 +340,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                   <button
                     className={`h-9 rounded-md border px-3 text-sm font-medium transition ${
                       room === option
-                        ? "border-neutral-950 bg-neutral-950 text-white"
+                        ? "border-sky-300 bg-sky-50 text-sky-800"
                         : "border-neutral-300 bg-white text-neutral-500 hover:text-neutral-950"
                     }`}
                     key={option}
@@ -364,7 +364,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                 Scan again
               </button>
               <button
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-wait disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60"
                 disabled={isSaving || !totalsMatch || review.items.length === 0}
                 type="submit"
               >

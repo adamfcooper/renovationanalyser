@@ -99,9 +99,16 @@ export function DashboardView({
   );
 }
 
-function DashboardMetric({ label, value }: Metric) {
+function DashboardMetric({ label, value, accent }: Metric) {
+  const accentClass = {
+    blue: "border-sky-200 bg-sky-50",
+    green: "border-emerald-200 bg-emerald-50",
+    red: "border-rose-200 bg-rose-50",
+    slate: "border-neutral-300 bg-white",
+  }[accent];
+
   return (
-    <div className="rounded-md border border-neutral-300 bg-white p-4">
+    <div className={`rounded-md border p-4 ${accentClass}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
       <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-950">{value}</p>
     </div>
@@ -193,8 +200,8 @@ function ForecastTable({ rows }: { rows: ForecastRow[] }) {
 }
 
 function numberTone(value: number) {
-  if (value > 0) return "text-neutral-950";
-  if (value < 0) return "text-neutral-950";
+  if (value > 0) return "text-emerald-700";
+  if (value < 0) return "text-rose-700";
   return "text-neutral-700";
 }
 

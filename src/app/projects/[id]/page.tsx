@@ -250,10 +250,10 @@ function LiveCostGroup({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-          <span className="rounded border border-neutral-300 bg-white px-2.5 py-1 text-neutral-800">
+          <span className="rounded border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-800">
             Purchased {formatCurrency(group.purchased)}
           </span>
-          <span className="rounded border border-neutral-300 bg-white px-2.5 py-1 text-neutral-800">
+          <span className="rounded border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-800">
             Planned {formatCurrency(group.planned)}
           </span>
           <span className="rounded border border-neutral-300 bg-white px-2.5 py-1 text-neutral-800">
