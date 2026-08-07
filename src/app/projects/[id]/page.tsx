@@ -61,6 +61,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <Metric label="ROI" value={formatPercent(metrics.roiPercent)} tone={metrics.roiPercent >= 12 ? "good" : metrics.roiPercent >= 6 ? "warn" : "bad"} />
       </div>
 
+      <LiveRenovationCosts
+        groupedCostItems={groupedCostItems}
+        plannedTotal={plannedTotal}
+        projectId={project.id}
+        purchasedTotal={purchasedTotal}
+        trackedTotal={trackedTotal}
+      />
+
       <section className="mt-6 rounded-md border border-neutral-300 bg-white p-4">
         <h2 className="text-base font-semibold text-neutral-950">Property summary</h2>
         <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
@@ -117,106 +125,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <CostTable title="Disposal costs" section={calculation.disposal} />
       </div>
 
-      <section className="mt-6 rounded-md border border-neutral-300 bg-white">
-        <div className="border-b border-neutral-300 px-4 py-3">
-          <h2 className="text-base font-semibold text-neutral-950">Live renovation costs</h2>
-        </div>
-        <div className="grid gap-4 border-b border-neutral-300 p-4 md:grid-cols-3">
-          <Metric label="Purchased" value={formatCurrency(purchasedTotal)} tone="good" />
-          <Metric label="Planned" value={formatCurrency(plannedTotal)} tone="warn" />
-          <Metric label="Tracked total" value={formatCurrency(trackedTotal)} />
-        </div>
-
-        {project.costItems.length > 0 ? (
-          <div className="grid gap-3 border-b border-neutral-300 p-4">
-            {groupedCostItems.map((group) => (
-              <LiveCostGroup key={group.title} group={group} projectId={project.id} />
-            ))}
-          </div>
-        ) : (
-          <div className="border-b border-neutral-300 p-4 text-sm text-neutral-500">
-            No live costs tracked yet. Add purchases, planned items, supplier links, and choose a section below.
-          </div>
-        )}
-
-        <form action={addRenovationCostItemAction} className="grid gap-4 p-4 lg:grid-cols-6">
-          <input type="hidden" name="projectId" value={project.id} />
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800 lg:col-span-2">
-            Item
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              name="name"
-              placeholder="Tiles, taps, paint..."
-              required
-            />
-          </label>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
-            Amount
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              min="0"
-              name="amount"
-              required
-              step="0.01"
-              type="number"
-            />
-          </label>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
-            Supplier
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              name="supplier"
-              placeholder="B&Q"
-            />
-          </label>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
-            Purchase link
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              name="purchaseUrl"
-              placeholder="https://..."
-              type="url"
-            />
-          </label>
-          <fieldset className="grid gap-2 lg:col-span-6">
-            <legend className="text-sm font-medium text-neutral-800">Which section is it for?</legend>
-            <div className="flex flex-wrap gap-2">
-              {costSectionOptions.map((option) => (
-                <label key={option}>
-                  <input
-                    className="peer sr-only"
-                    defaultChecked={option === "Misc"}
-                    name="tag"
-                    required
-                    type="radio"
-                    value={option}
-                  />
-                  <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white">
-                    {option}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-800 lg:col-span-4">
-            Notes
-            <input
-              className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
-              name="notes"
-              placeholder="Room, quantity, colour, delivery note..."
-            />
-          </label>
-          <label className="flex min-h-10 items-center gap-3 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-800">
-            <input className="size-4 accent-neutral-950" name="purchased" type="checkbox" />
-            Purchased
-          </label>
-          <button className="h-10 rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800">
-            Add item
-          </button>
-        </form>
-        <ReceiptUploadForm projectId={project.id} />
-      </section>
-
       {displayProjectNotes(project.notes) ? (
         <section className="mt-6 rounded-md border border-neutral-300 bg-white p-4">
           <h2 className="text-base font-semibold text-neutral-950">Notes</h2>
@@ -224,6 +132,139 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </section>
       ) : null}
     </>
+  );
+}
+
+function LiveRenovationCosts({
+  groupedCostItems,
+  plannedTotal,
+  projectId,
+  purchasedTotal,
+  trackedTotal,
+}: {
+  groupedCostItems: Array<{
+    items: RenovationCostItem[];
+    planned: number;
+    purchased: number;
+    title: string;
+    total: number;
+  }>;
+  plannedTotal: number;
+  projectId: string;
+  purchasedTotal: number;
+  trackedTotal: number;
+}) {
+  return (
+    <section className="mt-6 rounded-md border border-neutral-300 bg-white">
+      <div className="border-b border-neutral-300 px-4 py-3">
+        <h2 className="text-base font-semibold text-neutral-950">Live renovation costs</h2>
+      </div>
+      <div className="grid gap-4 border-b border-neutral-300 p-4 md:grid-cols-3">
+        <Metric label="Purchased" value={formatCurrency(purchasedTotal)} tone="good" />
+        <Metric label="Planned" value={formatCurrency(plannedTotal)} tone="warn" />
+        <Metric label="Tracked total" value={formatCurrency(trackedTotal)} />
+      </div>
+
+      {groupedCostItems.some((group) => group.items.length > 0) ? (
+        <div className="grid gap-3 border-b border-neutral-300 p-4">
+          {groupedCostItems.map((group) => (
+            <LiveCostGroup key={group.title} group={group} projectId={projectId} />
+          ))}
+        </div>
+      ) : (
+        <div className="border-b border-neutral-300 p-4 text-sm text-neutral-500">
+          No live costs tracked yet. Add purchases, planned items, supplier links, and choose a section below.
+        </div>
+      )}
+
+      <details className="group">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:hidden">
+          <div>
+            <h3 className="font-semibold text-neutral-950">Add item</h3>
+            <p className="mt-1 text-xs text-neutral-500">Add a manual cost or scan a receipt.</p>
+          </div>
+          <ChevronDown className="text-neutral-500 transition group-open:rotate-180" size={18} />
+        </summary>
+        <div className="border-t border-neutral-300">
+          <form action={addRenovationCostItemAction} className="grid gap-4 p-4 lg:grid-cols-6">
+            <input type="hidden" name="projectId" value={projectId} />
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800 lg:col-span-2">
+              Item
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
+                name="name"
+                placeholder="Tiles, taps, paint..."
+                required
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
+              Amount
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
+                min="0"
+                name="amount"
+                required
+                step="0.01"
+                type="number"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
+              Supplier
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
+                name="supplier"
+                placeholder="B&Q"
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
+              Purchase link
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
+                name="purchaseUrl"
+                placeholder="https://..."
+                type="url"
+              />
+            </label>
+            <fieldset className="grid gap-2 lg:col-span-6">
+              <legend className="text-sm font-medium text-neutral-800">Which section is it for?</legend>
+              <div className="flex flex-wrap gap-2">
+                {costSectionOptions.map((option) => (
+                  <label key={option}>
+                    <input
+                      className="peer sr-only"
+                      defaultChecked={option === "Misc"}
+                      name="tag"
+                      required
+                      type="radio"
+                      value={option}
+                    />
+                    <span className="inline-flex h-9 cursor-pointer items-center rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-700 transition peer-checked:border-neutral-950 peer-checked:bg-neutral-950 peer-checked:text-white">
+                      {option}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800 lg:col-span-4">
+              Notes
+              <input
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
+                name="notes"
+                placeholder="Room, quantity, colour, delivery note..."
+              />
+            </label>
+            <label className="flex min-h-10 items-center gap-3 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium text-neutral-800">
+              <input className="size-4 accent-neutral-950" name="purchased" type="checkbox" />
+              Purchased
+            </label>
+            <button className="h-10 rounded-md bg-neutral-950 px-4 text-sm font-semibold text-white transition hover:bg-neutral-800">
+              Add item
+            </button>
+          </form>
+          <ReceiptUploadForm projectId={projectId} />
+        </div>
+      </details>
+    </section>
   );
 }
 
