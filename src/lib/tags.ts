@@ -16,5 +16,5 @@ export function liveCostGroupForTag(rawTag: string | null | undefined, name = ""
 
   if (tag === "Kitchen" || (!rawTag && searchableText.includes("kitchen"))) return "Kitchen";
   if (tag === "Bathroom" || (!rawTag && searchableText.includes("bathroom"))) return "Bathroom";
-  return "Rest of house";
+  return "Misc";
 }

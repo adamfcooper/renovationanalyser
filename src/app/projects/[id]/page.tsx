@@ -321,7 +321,7 @@ function groupRenovationCostItems(items: RenovationCostItem[]) {
   const groups = [
     { title: "Kitchen", items: [] as RenovationCostItem[] },
     { title: "Bathroom", items: [] as RenovationCostItem[] },
-    { title: "Rest of house", items: [] as RenovationCostItem[] },
+    { title: "Misc", items: [] as RenovationCostItem[] },
   ];
 
   for (const item of items) {
