@@ -197,7 +197,7 @@ export const ericaDriveCostItems = [
   costItem("Bathroom", "Bathroom reduction", -307.74, {
     notes: "15% reduction from Erica Dr Reno supply sheet.",
   }),
-  costItem("Misc", "Carpet supply and fit", 1546),
+  costItem("Flooring", "Carpet supply and fit", 1546),
   costItem("Misc", "Paint", 92.5),
   costItem("Misc", "Internal doors including handles", 250),
   costItem("Misc", "Extractor fan and ducting in bathroom", 0),

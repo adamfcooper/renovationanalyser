@@ -321,6 +321,7 @@ function groupRenovationCostItems(items: RenovationCostItem[]) {
   const groups = [
     { title: "Kitchen", items: [] as RenovationCostItem[] },
     { title: "Bathroom", items: [] as RenovationCostItem[] },
+    { title: "Flooring", items: [] as RenovationCostItem[] },
     { title: "Misc", items: [] as RenovationCostItem[] },
   ];
 
@@ -330,8 +331,10 @@ function groupRenovationCostItems(items: RenovationCostItem[]) {
       groups[0].items.push(item);
     } else if (groupTitle === "Bathroom") {
       groups[1].items.push(item);
-    } else {
+    } else if (groupTitle === "Flooring") {
       groups[2].items.push(item);
+    } else {
+      groups[3].items.push(item);
     }
   }
 
