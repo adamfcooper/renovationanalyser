@@ -1,3 +1,5 @@
+import { liveCostGroupForTag } from "./tags";
+
 export type PropertyType = "BUNGALOW" | "TERRACE" | "SEMI" | "DETACHED" | "FLAT";
 export type ConditionLevel =
   | "LIGHT_COSMETIC"
@@ -121,6 +123,12 @@ export type ProjectInput = {
   stagingPhotography?: number | null;
   mortgageExitFee?: number | null;
   capitalGainsTax?: number | null;
+  costItems?: {
+    name: string;
+    tag?: string | null;
+    amount: number;
+    purchased: boolean;
+  }[];
 };
 
 export type CostLine = { label: string; amount: number; working?: string };
@@ -220,6 +228,32 @@ function sqFtCost(roomSqFt: number | null | undefined, costPerSqFt: number | nul
 function sqFtWorking(roomSqFt: number | null | undefined, costPerSqFt: number | null) {
   if (roomSqFt && costPerSqFt) return `${roomSqFt} sq ft x ${formatSqFtRate(costPerSqFt)} per sq ft`;
   return "Needs sq ft and £/sq ft assumption";
+}
+
+function trackedRenovationSection(project: ProjectInput) {
+  const costItems = project.costItems ?? [];
+  if (costItems.length === 0) return null;
+
+  const groups = ["Kitchen", "Bathroom", "Flooring", "Misc"];
+  const lines: CostLine[] = [];
+
+  for (const group of groups) {
+    const items = costItems.filter((item) => liveCostGroupForTag(item.tag, item.name) === group);
+    if (items.length === 0) continue;
+
+    const purchased = roundMoney(items.filter((item) => item.purchased).reduce((sum, item) => sum + item.amount, 0));
+    const planned = roundMoney(items.filter((item) => !item.purchased).reduce((sum, item) => sum + item.amount, 0));
+    const amount = roundMoney(purchased + planned);
+    const working =
+      planned === 0
+        ? `${items.length} tracked item${items.length === 1 ? "" : "s"}, all purchased`
+        : `${formatInlineMoney(purchased)} purchased + ${formatInlineMoney(planned)} planned`;
+
+    lines.push({ label: group, amount, working });
+  }
+
+  const preContingency = total(lines);
+  return { lines, total: preContingency, preContingency, contingency: 0 };
 }
 
 function tradeWorking(level: TradeLevel | null | undefined, days: number, dayRate: number) {
@@ -351,94 +385,101 @@ export function calculateDeal(project: ProjectInput, assumptions: AssumptionsInp
   ];
   const acquisitionTotal = total(acquisitionLines);
 
-  const renovationLines: CostLine[] = [];
-  if (project.needsKitchen) {
-    renovationLines.push({
-      label: "Kitchen",
-      amount: sqFtCost(project.kitchenSqFt, assumptions.kitchenRenoCostPerSqFt),
-      working: sqFtWorking(project.kitchenSqFt, assumptions.kitchenRenoCostPerSqFt),
-    });
-  }
-  if (project.needsBathroom) {
-    renovationLines.push({
-      label: "Bathroom",
-      amount: sqFtCost(project.bathroomSqFt, assumptions.bathroomRenoCostPerSqFt),
-      working: sqFtWorking(project.bathroomSqFt, assumptions.bathroomRenoCostPerSqFt),
-    });
-  }
-  if (project.needsFlooring) {
-    renovationLines.push({
-      label: "Flooring",
-      amount: roomCost(project.flooringSqFt, assumptions.flooringCostPerSqFt, assumptions.flooringDefault, project.flooringCost),
-      working: roomWorking(project.flooringSqFt, assumptions.flooringCostPerSqFt, assumptions.flooringDefault, project.flooringCost),
-    });
-  }
-  if (project.needsDecorating) {
-    renovationLines.push({ label: "Decorating", amount: value(project.decoratingCost, assumptions.decoratingDefault) });
-  }
-  if (project.needsGardenWork) {
-    renovationLines.push({ label: "Garden / exterior", amount: value(project.gardenCost, assumptions.gardenDefault) });
-  }
-  const plumbingLabour = project.needsMinorPlumbing ? (project.plumbingHours ?? 0) * assumptions.plumbingDayRate : 0;
-  const electricalLabour = project.needsMinorElectrical ? (project.electricalHours ?? 0) * assumptions.electricianDayRate : 0;
-  const decoratingLabour = tradeDays(project.decoratingLevel, assumptions) * assumptions.decoratorDayRate;
-  if (project.needsMinorPlumbing) {
-    renovationLines.push({
-      label: "Plumbing labour",
-      amount: roundMoney(plumbingLabour),
-      working: `${project.plumbingHours ?? 0} hours x £${assumptions.plumbingDayRate.toFixed(2)} hourly rate`,
-    });
-  }
-  if (project.needsMinorElectrical) {
-    renovationLines.push({
-      label: "Electrical labour",
-      amount: roundMoney(electricalLabour),
-      working: `${project.electricalHours ?? 0} hours x £${assumptions.electricianDayRate.toFixed(2)} hourly rate`,
-    });
-  }
-  if (decoratingLabour) {
-    renovationLines.push({
-      label: `${project.decoratingLevel?.toLowerCase()} decorating labour`,
-      amount: roundMoney(decoratingLabour),
-      working: tradeWorking(project.decoratingLevel, tradeDays(project.decoratingLevel, assumptions), assumptions.decoratorDayRate),
-    });
-  }
-  if (project.plasteringSqFt && assumptions.plasteringCostPerSqFt) {
-    renovationLines.push({
-      label: "Plastering labour",
-      amount: roundMoney(project.plasteringSqFt * assumptions.plasteringCostPerSqFt),
-      working: `${project.plasteringSqFt} sq ft x ${formatSqFtRate(assumptions.plasteringCostPerSqFt)} per sq ft`,
-    });
-  }
+  const trackedRenovation = trackedRenovationSection(project);
+  const renovationLines: CostLine[] = trackedRenovation?.lines ?? [];
+  let preContingency = trackedRenovation?.preContingency ?? 0;
+  let contingency = trackedRenovation?.contingency ?? 0;
+  let renovationTotal = trackedRenovation?.total ?? 0;
 
-  const paintEstimate =
-    project.restOfHouseCost ??
-    (project.internalSqFt && assumptions.renovationCostPerSqFt
-      ? project.internalSqFt * assumptions.renovationCostPerSqFt
-      : assumptions.restOfHouseDefault);
-  renovationLines.push({
-    label: "Brilliant white paint",
-    amount: roundMoney(paintEstimate),
-    working:
-      project.restOfHouseCost !== null && project.restOfHouseCost !== undefined
-        ? "Actual/override cost entered for this project"
-        : project.internalSqFt && assumptions.renovationCostPerSqFt
-          ? `${project.internalSqFt} sq ft x ${formatSqFtRate(assumptions.renovationCostPerSqFt)} per sq ft`
-          : "Default brilliant-white paint allowance",
-  });
-  const skips = skipCount(project.internalSqFt, assumptions.skipCoverageSqFt);
-  if (skips) {
-    renovationLines.push({
-      label: "Skip",
-      amount: roundMoney(skips * assumptions.skipCost),
-      working: `${skips} skip${skips === 1 ? "" : "s"} for ${project.internalSqFt} sq ft at £${assumptions.skipCost.toFixed(2)} each`,
-    });
-  }
+  if (!trackedRenovation) {
+    if (project.needsKitchen) {
+      renovationLines.push({
+        label: "Kitchen",
+        amount: sqFtCost(project.kitchenSqFt, assumptions.kitchenRenoCostPerSqFt),
+        working: sqFtWorking(project.kitchenSqFt, assumptions.kitchenRenoCostPerSqFt),
+      });
+    }
+    if (project.needsBathroom) {
+      renovationLines.push({
+        label: "Bathroom",
+        amount: sqFtCost(project.bathroomSqFt, assumptions.bathroomRenoCostPerSqFt),
+        working: sqFtWorking(project.bathroomSqFt, assumptions.bathroomRenoCostPerSqFt),
+      });
+    }
+    if (project.needsFlooring) {
+      renovationLines.push({
+        label: "Flooring",
+        amount: roomCost(project.flooringSqFt, assumptions.flooringCostPerSqFt, assumptions.flooringDefault, project.flooringCost),
+        working: roomWorking(project.flooringSqFt, assumptions.flooringCostPerSqFt, assumptions.flooringDefault, project.flooringCost),
+      });
+    }
+    if (project.needsDecorating) {
+      renovationLines.push({ label: "Decorating", amount: value(project.decoratingCost, assumptions.decoratingDefault) });
+    }
+    if (project.needsGardenWork) {
+      renovationLines.push({ label: "Garden / exterior", amount: value(project.gardenCost, assumptions.gardenDefault) });
+    }
+    const plumbingLabour = project.needsMinorPlumbing ? (project.plumbingHours ?? 0) * assumptions.plumbingDayRate : 0;
+    const electricalLabour = project.needsMinorElectrical ? (project.electricalHours ?? 0) * assumptions.electricianDayRate : 0;
+    const decoratingLabour = tradeDays(project.decoratingLevel, assumptions) * assumptions.decoratorDayRate;
+    if (project.needsMinorPlumbing) {
+      renovationLines.push({
+        label: "Plumbing labour",
+        amount: roundMoney(plumbingLabour),
+        working: `${project.plumbingHours ?? 0} hours x £${assumptions.plumbingDayRate.toFixed(2)} hourly rate`,
+      });
+    }
+    if (project.needsMinorElectrical) {
+      renovationLines.push({
+        label: "Electrical labour",
+        amount: roundMoney(electricalLabour),
+        working: `${project.electricalHours ?? 0} hours x £${assumptions.electricianDayRate.toFixed(2)} hourly rate`,
+      });
+    }
+    if (decoratingLabour) {
+      renovationLines.push({
+        label: `${project.decoratingLevel?.toLowerCase()} decorating labour`,
+        amount: roundMoney(decoratingLabour),
+        working: tradeWorking(project.decoratingLevel, tradeDays(project.decoratingLevel, assumptions), assumptions.decoratorDayRate),
+      });
+    }
+    if (project.plasteringSqFt && assumptions.plasteringCostPerSqFt) {
+      renovationLines.push({
+        label: "Plastering labour",
+        amount: roundMoney(project.plasteringSqFt * assumptions.plasteringCostPerSqFt),
+        working: `${project.plasteringSqFt} sq ft x ${formatSqFtRate(assumptions.plasteringCostPerSqFt)} per sq ft`,
+      });
+    }
 
-  const preContingency = total(renovationLines);
-  const contingencyRate = value(project.contingencyPercentage, assumptions.contingencyPercentage);
-  const contingency = roundMoney(preContingency * (contingencyRate / 100));
-  const renovationTotal = roundMoney(preContingency + contingency);
+    const paintEstimate =
+      project.restOfHouseCost ??
+      (project.internalSqFt && assumptions.renovationCostPerSqFt
+        ? project.internalSqFt * assumptions.renovationCostPerSqFt
+        : assumptions.restOfHouseDefault);
+    renovationLines.push({
+      label: "Brilliant white paint",
+      amount: roundMoney(paintEstimate),
+      working:
+        project.restOfHouseCost !== null && project.restOfHouseCost !== undefined
+          ? "Actual/override cost entered for this project"
+          : project.internalSqFt && assumptions.renovationCostPerSqFt
+            ? `${project.internalSqFt} sq ft x ${formatSqFtRate(assumptions.renovationCostPerSqFt)} per sq ft`
+            : "Default brilliant-white paint allowance",
+    });
+    const skips = skipCount(project.internalSqFt, assumptions.skipCoverageSqFt);
+    if (skips) {
+      renovationLines.push({
+        label: "Skip",
+        amount: roundMoney(skips * assumptions.skipCost),
+        working: `${skips} skip${skips === 1 ? "" : "s"} for ${project.internalSqFt} sq ft at £${assumptions.skipCost.toFixed(2)} each`,
+      });
+    }
+
+    preContingency = total(renovationLines);
+    const contingencyRate = value(project.contingencyPercentage, assumptions.contingencyPercentage);
+    contingency = roundMoney(preContingency * (contingencyRate / 100));
+    renovationTotal = roundMoney(preContingency + contingency);
+  }
 
   const debtAmount = Math.max(0, project.actualPurchasePrice - (project.depositAmount ?? 0));
   const repayment =
@@ -621,6 +662,11 @@ function calculateRenovationTotalOnly(project: ProjectInput, assumptions: Assump
 }
 
 function calculateDealWithoutSensitivity(project: ProjectInput, assumptions: AssumptionsInput) {
+  const trackedRenovation = trackedRenovationSection(project);
+  if (trackedRenovation) {
+    return { renovation: trackedRenovation };
+  }
+
   const renovationLines: CostLine[] = [];
   if (project.needsKitchen) {
     renovationLines.push({

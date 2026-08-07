@@ -89,9 +89,11 @@ export async function createProjectAction(formData: FormData) {
   };
 
   const db = getDb();
+  const { costItems: _ignoredCreateCostItems, ...projectCreateData } = projectData;
+  void _ignoredCreateCostItems;
   const project = await db.project.create({
     data: {
-      ...projectData,
+      ...projectCreateData,
       plumbingLevel: projectData.plumbingLevel ?? "NONE",
       electricalLevel: projectData.electricalLevel ?? "NONE",
       decoratingLevel: projectData.decoratingLevel ?? "NONE",
@@ -248,10 +250,12 @@ export async function updateProjectAction(formData: FormData) {
   };
 
   const db = getDb();
+  const { costItems: _ignoredUpdateCostItems, ...projectUpdateData } = projectData;
+  void _ignoredUpdateCostItems;
   const project = await db.project.update({
     where: { id: projectId },
     data: {
-      ...projectData,
+      ...projectUpdateData,
       plumbingLevel: projectData.plumbingLevel ?? "NONE",
       electricalLevel: projectData.electricalLevel ?? "NONE",
       decoratingLevel: projectData.decoratingLevel ?? "NONE",

@@ -1,20 +1,41 @@
 import { describe, expect, it } from "vitest";
 import { calculateDeal } from "./calculations";
-import { defaultAssumptions, ericaDriveProject } from "./seed-data";
+import { defaultAssumptions, ericaDriveCostItems, ericaDriveProject } from "./seed-data";
 
 describe("calculateDeal", () => {
   it("matches the Erica Drive finance sheet", () => {
-    const result = calculateDeal(ericaDriveProject, defaultAssumptions);
+    const result = calculateDeal({ ...ericaDriveProject, costItems: ericaDriveCostItems }, defaultAssumptions);
 
     expect(result.acquisition.total).toBe(197349);
-    expect(result.renovation.total).toBe(6835.56);
+    expect(result.renovation.total).toBe(9711.73);
+    expect(result.renovation.contingency).toBe(0);
     expect(result.holding.total).toBe(5328);
     expect(result.disposal.total).toBe(7340);
-    expect(result.metrics.allInCost).toBe(216852.56);
-    expect(result.metrics.grossProfit).toBe(3147.44);
-    expect(result.metrics.netProfit).toBe(3147.44);
-    expect(result.metrics.roiPercent).toBe(1.45);
+    expect(result.metrics.allInCost).toBe(219728.73);
+    expect(result.metrics.grossProfit).toBe(271.27);
+    expect(result.metrics.netProfit).toBe(271.27);
+    expect(result.metrics.roiPercent).toBe(0.12);
     expect(result.metrics.dealScore).toBe("Avoid");
+  });
+
+  it("uses live tracked renovation costs instead of estimate formulas", () => {
+    const result = calculateDeal(
+      {
+        ...ericaDriveProject,
+        costItems: [
+          { name: "Base units", tag: "Kitchen", amount: 1000, purchased: true },
+          { name: "Flooring quote", tag: "Flooring", amount: 500, purchased: false },
+        ],
+      },
+      defaultAssumptions,
+    );
+
+    expect(result.renovation.lines).toEqual([
+      { label: "Kitchen", amount: 1000, working: "1 tracked item, all purchased" },
+      { label: "Flooring", amount: 500, working: "£0.00 purchased + £500.00 planned" },
+    ]);
+    expect(result.renovation.total).toBe(1500);
+    expect(result.renovation.contingency).toBe(0);
   });
 
   it("adds contingency for normal new projects", () => {
