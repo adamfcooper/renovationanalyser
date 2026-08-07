@@ -204,7 +204,7 @@ export const ericaDriveCostItems = [
   costItem("Misc", "Skip", 240),
   costItem("Misc", "Labour cost", 385),
   costItem("Misc", "Masonry bolster", 9.99),
-  costItem("Misc", "8x floorboards & 8x 2x4 timber", 31.9),
+  costItem("Flooring", "8x floorboards & 8x 2x4 timber", 31.9),
   costItem("Misc", "Supply sheet rounding adjustment", 0.01, {
     notes: "One-penny adjustment so itemised rows match the supply sheet headline total of £9,711.73.",
   }),

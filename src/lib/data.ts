@@ -171,7 +171,21 @@ function existingProjectNotesWithMarker(notes: string | null) {
 }
 
 async function ensureMiscTags() {
-  await getDb().renovationCostItem.updateMany({
+  const db = getDb();
+
+  await db.renovationCostItem.updateMany({
+    where: {
+      OR: [
+        { name: { contains: "carpet", mode: "insensitive" } },
+        { name: { contains: "floor", mode: "insensitive" } },
+        { name: { contains: "flooring", mode: "insensitive" } },
+        { name: { contains: "floorboards", mode: "insensitive" } },
+      ],
+    },
+    data: { tag: "Flooring" },
+  });
+
+  await db.renovationCostItem.updateMany({
     where: {
       tag: {
         in: ["Bedroom", "Exterior", "General", "Hallway", "Living room", "Rest of house", "Utility / workshop", "Whole house"],
