@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import {
   addRenovationCostItemAction,
   deleteRenovationCostItemAction,
@@ -12,6 +12,12 @@ import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+type RenovationCostItem = NonNullable<Awaited<ReturnType<typeof getCalculatedProject>>> extends { project: { costItems: infer T } }
+  ? T extends Array<infer U>
+    ? U
+    : never
+  : never;
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -27,6 +33,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     .filter((item) => !item.purchased)
     .reduce((sum, item) => sum + item.amount, 0);
   const trackedTotal = purchasedTotal + plannedTotal;
+  const groupedCostItems = groupRenovationCostItems(project.costItems);
 
   return (
     <>
@@ -119,63 +126,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {project.costItems.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-sm">
-              <thead>
-                <tr className="border-b border-slate-700 bg-[#202733] text-left text-xs uppercase tracking-wide text-slate-300">
-                  <th className="px-4 py-3">Item</th>
-                  <th className="px-4 py-3">Tag</th>
-                  <th className="px-4 py-3">Supplier</th>
-                  <th className="px-4 py-3 text-right">Amount</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {project.costItems.map((item) => (
-                  <tr key={item.id} className="border-b border-slate-800 last:border-0">
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-white">{item.name}</span>
-                      {item.notes ? <span className="mt-1 block text-xs text-slate-500">{item.notes}</span> : null}
-                    </td>
-                    <td className="px-4 py-3 text-slate-300">{item.tag || "General"}</td>
-                    <td className="px-4 py-3 text-slate-300">
-                      {item.purchaseUrl ? (
-                        <a
-                          className="inline-flex items-center gap-1 font-medium text-sky-300 hover:text-sky-100"
-                          href={item.purchaseUrl}
-                          rel="noreferrer"
-                          target="_blank"
-                        >
-                          {item.supplier || "Link"}
-                          <ExternalLink size={14} />
-                        </a>
-                      ) : (
-                        item.supplier || "n/a"
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-white">{formatCurrency(item.amount)}</td>
-                    <td className="px-4 py-3">
-                      <PurchasedStatusForm
-                        itemId={item.id}
-                        itemName={item.name}
-                        projectId={project.id}
-                        purchased={item.purchased}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <form action={deleteRenovationCostItemAction}>
-                        <input type="hidden" name="projectId" value={project.id} />
-                        <input type="hidden" name="itemId" value={item.id} />
-                        <button className="rounded-md border border-slate-700 px-2 py-1 text-xs font-medium text-slate-400 hover:border-rose-400 hover:bg-rose-500/10 hover:text-rose-200">
-                          Delete
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-3 border-b border-slate-700 p-4">
+            {groupedCostItems.map((group) => (
+              <LiveCostGroup key={group.title} group={group} projectId={project.id} />
+            ))}
           </div>
         ) : (
           <div className="border-b border-slate-700 p-4 text-sm text-slate-400">
@@ -257,6 +211,140 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       ) : null}
     </>
   );
+}
+
+function LiveCostGroup({
+  group,
+  projectId,
+}: {
+  group: {
+    items: RenovationCostItem[];
+    planned: number;
+    purchased: number;
+    title: string;
+    total: number;
+  };
+  projectId: string;
+}) {
+  return (
+    <details className="group rounded-md border border-slate-700 bg-[#111318]" open>
+      <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3 marker:hidden">
+        <div>
+          <h3 className="font-semibold text-white">{group.title}</h3>
+          <p className="mt-1 text-xs text-slate-500">
+            {group.items.length} {group.items.length === 1 ? "item" : "items"}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+          <span className="rounded border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-emerald-200">
+            Purchased {formatCurrency(group.purchased)}
+          </span>
+          <span className="rounded border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-amber-200">
+            Planned {formatCurrency(group.planned)}
+          </span>
+          <span className="rounded border border-slate-600 bg-slate-800/70 px-2.5 py-1 text-slate-200">
+            Total {formatCurrency(group.total)}
+          </span>
+          <ChevronDown className="text-slate-500 transition group-open:rotate-180" size={18} />
+        </div>
+      </summary>
+
+      {group.items.length > 0 ? (
+        <div className="overflow-x-auto border-t border-slate-700">
+          <table className="w-full min-w-[860px] text-sm">
+            <thead>
+              <tr className="border-b border-slate-700 bg-[#202733] text-left text-xs uppercase tracking-wide text-slate-300">
+                <th className="px-4 py-3">Item</th>
+                <th className="px-4 py-3">Tag</th>
+                <th className="px-4 py-3">Supplier</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {group.items.map((item) => (
+                <LiveCostRow key={item.id} item={item} projectId={projectId} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="border-t border-slate-700 px-4 py-5 text-sm text-slate-500">No costs in this section yet.</div>
+      )}
+    </details>
+  );
+}
+
+function LiveCostRow({ item, projectId }: { item: RenovationCostItem; projectId: string }) {
+  return (
+    <tr className="border-b border-slate-800 last:border-0">
+      <td className="px-4 py-3">
+        <span className="font-medium text-white">{item.name}</span>
+        {item.notes ? <span className="mt-1 block text-xs text-slate-500">{item.notes}</span> : null}
+      </td>
+      <td className="px-4 py-3 text-slate-300">{item.tag || "General"}</td>
+      <td className="px-4 py-3 text-slate-300">
+        {item.purchaseUrl ? (
+          <a
+            className="inline-flex items-center gap-1 font-medium text-sky-300 hover:text-sky-100"
+            href={item.purchaseUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {item.supplier || "Link"}
+            <ExternalLink size={14} />
+          </a>
+        ) : (
+          item.supplier || "n/a"
+        )}
+      </td>
+      <td className="px-4 py-3 text-right font-medium text-white">{formatCurrency(item.amount)}</td>
+      <td className="px-4 py-3">
+        <PurchasedStatusForm itemId={item.id} itemName={item.name} projectId={projectId} purchased={item.purchased} />
+      </td>
+      <td className="px-4 py-3 text-right">
+        <form action={deleteRenovationCostItemAction}>
+          <input type="hidden" name="projectId" value={projectId} />
+          <input type="hidden" name="itemId" value={item.id} />
+          <button className="rounded-md border border-slate-700 px-2 py-1 text-xs font-medium text-slate-400 hover:border-rose-400 hover:bg-rose-500/10 hover:text-rose-200">
+            Delete
+          </button>
+        </form>
+      </td>
+    </tr>
+  );
+}
+
+function groupRenovationCostItems(items: RenovationCostItem[]) {
+  const groups = [
+    { title: "Kitchen", items: [] as RenovationCostItem[] },
+    { title: "Bathroom", items: [] as RenovationCostItem[] },
+    { title: "Rest of house", items: [] as RenovationCostItem[] },
+  ];
+
+  for (const item of items) {
+    const searchableText = `${item.tag ?? ""} ${item.name ?? ""}`.toLowerCase();
+    if (searchableText.includes("kitchen")) {
+      groups[0].items.push(item);
+    } else if (searchableText.includes("bathroom")) {
+      groups[1].items.push(item);
+    } else {
+      groups[2].items.push(item);
+    }
+  }
+
+  return groups.map((group) => {
+    const purchased = group.items.filter((item) => item.purchased).reduce((sum, item) => sum + item.amount, 0);
+    const planned = group.items.filter((item) => !item.purchased).reduce((sum, item) => sum + item.amount, 0);
+
+    return {
+      ...group,
+      planned,
+      purchased,
+      total: purchased + planned,
+    };
+  });
 }
 
 function Summary({ label, value }: { label: string; value: string }) {
