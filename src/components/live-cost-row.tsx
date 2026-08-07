@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { deleteRenovationCostItemAction, updateRenovationCostItemAction } from "@/app/actions";
 import { costSectionOptions } from "@/lib/cost-sections";
@@ -20,8 +21,21 @@ export type LiveCostRowItem = {
 };
 
 export function LiveCostRow({ item, projectId }: { item: LiveCostRowItem; projectId: string }) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const currentSection = liveCostGroupForTag(item.tag, item.name);
+
+  async function saveExpense(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSaving(true);
+    const formData = new FormData(event.currentTarget);
+
+    await updateRenovationCostItemAction(formData);
+    setIsEditing(false);
+    setIsSaving(false);
+    router.refresh();
+  }
 
   return (
     <>
@@ -76,7 +90,7 @@ export function LiveCostRow({ item, projectId }: { item: LiveCostRowItem; projec
       {isEditing ? (
         <tr className="border-b border-neutral-200 last:border-0">
           <td colSpan={6} className="bg-neutral-50 px-4 py-3">
-            <form action={updateRenovationCostItemAction} className="grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-6">
+            <form onSubmit={saveExpense} className="grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-6">
               <input type="hidden" name="projectId" value={projectId} />
               <input type="hidden" name="itemId" value={item.id} />
               <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-2">
@@ -145,8 +159,11 @@ export function LiveCostRow({ item, projectId }: { item: LiveCostRowItem; projec
                   name="notes"
                 />
               </label>
-              <button className="h-9 self-end rounded-md bg-neutral-950 px-4 text-xs font-semibold text-white transition hover:bg-neutral-800">
-                Save
+              <button
+                className="h-9 self-end rounded-md bg-neutral-950 px-4 text-xs font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-wait disabled:opacity-70"
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving" : "Save"}
               </button>
             </form>
           </td>
