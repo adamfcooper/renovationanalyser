@@ -21,6 +21,8 @@ export async function getAssumptions() {
 
 export async function getProjects() {
   const db = getDb();
+  await ensureMiscTags();
+
   let projects = await db.project.findMany({
     orderBy: { createdAt: "desc" },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
@@ -46,7 +48,10 @@ export async function getProjects() {
 }
 
 export async function getProject(id: string) {
-  return getDb().project.findUnique({
+  const db = getDb();
+  await ensureMiscTags();
+
+  return db.project.findUnique({
     where: { id },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
@@ -163,4 +168,15 @@ function ericaSeedNotes() {
 function existingProjectNotesWithMarker(notes: string | null) {
   if (notes?.includes(ERICA_PURCHASED_SEED_MARKER)) return notes;
   return `${notes?.trim() || "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft."}\n${ERICA_PURCHASED_SEED_MARKER}`;
+}
+
+async function ensureMiscTags() {
+  await getDb().renovationCostItem.updateMany({
+    where: {
+      tag: {
+        in: ["Bedroom", "Exterior", "General", "Hallway", "Living room", "Rest of house", "Utility / workshop", "Whole house"],
+      },
+    },
+    data: { tag: "Misc" },
+  });
 }

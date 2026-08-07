@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "@/lib/calculations";
 import { getDb } from "@/lib/db";
 import { getAssumptions } from "@/lib/data";
+import { renovationTag } from "@/lib/tags";
 
 function text(formData: FormData, key: string, fallback = "") {
   const value = formData.get(key);
@@ -290,7 +291,7 @@ export async function addRenovationCostItemAction(formData: FormData) {
     data: {
       projectId,
       name,
-      tag: text(formData, "tag") || null,
+      tag: renovationTag(text(formData, "tag")),
       amount,
       purchased,
       supplier: text(formData, "supplier") || null,
@@ -307,7 +308,7 @@ export async function addRenovationCostItemAction(formData: FormData) {
 
 export async function addRenovationReceiptItemsAction(formData: FormData) {
   const projectId = text(formData, "projectId");
-  const tag = text(formData, "tag") || null;
+  const tag = renovationTag(text(formData, "tag"));
   const supplier = text(formData, "supplier") || null;
   const rawItems = text(formData, "items", "[]");
 

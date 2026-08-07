@@ -10,6 +10,7 @@ import { ReceiptUploadForm } from "@/components/receipt-upload-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
+import { liveCostGroupForTag, renovationTag } from "@/lib/tags";
 
 export const dynamic = "force-dynamic";
 
@@ -153,7 +154,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <input
               className="h-10 rounded-md border border-slate-700 bg-[#111318] px-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20"
               name="tag"
-              placeholder="Bathroom"
+              placeholder="Misc"
             />
           </label>
           <label className="grid gap-1.5 text-sm font-medium text-slate-200">
@@ -283,7 +284,7 @@ function LiveCostRow({ item, projectId }: { item: RenovationCostItem; projectId:
         <span className="font-medium text-white">{item.name}</span>
         {item.notes ? <span className="mt-1 block text-xs text-slate-500">{item.notes}</span> : null}
       </td>
-      <td className="px-4 py-3 text-slate-300">{item.tag || "General"}</td>
+      <td className="px-4 py-3 text-slate-300">{renovationTag(item.tag)}</td>
       <td className="px-4 py-3 text-slate-300">
         {item.purchaseUrl ? (
           <a
@@ -324,10 +325,10 @@ function groupRenovationCostItems(items: RenovationCostItem[]) {
   ];
 
   for (const item of items) {
-    const searchableText = `${item.tag ?? ""} ${item.name ?? ""}`.toLowerCase();
-    if (searchableText.includes("kitchen")) {
+    const groupTitle = liveCostGroupForTag(item.tag, item.name);
+    if (groupTitle === "Kitchen") {
       groups[0].items.push(item);
-    } else if (searchableText.includes("bathroom")) {
+    } else if (groupTitle === "Bathroom") {
       groups[1].items.push(item);
     } else {
       groups[2].items.push(item);

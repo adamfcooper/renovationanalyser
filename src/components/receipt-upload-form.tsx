@@ -7,17 +7,7 @@ import { Check, FileCheck2, LoaderCircle, Plus, ReceiptText, RotateCcw, Trash2, 
 import { addRenovationReceiptItemsAction } from "@/app/actions";
 import { suggestReceiptDetails } from "@/lib/receipt";
 
-const roomOptions = [
-  "Kitchen",
-  "Bathroom",
-  "Living room",
-  "Bedroom",
-  "Hallway",
-  "Utility / workshop",
-  "Exterior",
-  "Whole house",
-  "General",
-];
+const roomOptions = ["Kitchen", "Bathroom", "Misc"];
 
 type ReviewDetails = {
   items: { amount: string; description: string; id: string }[];
