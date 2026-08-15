@@ -21,11 +21,11 @@ export function PageHeader({
 }) {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+      <div className="min-w-0">
         {eyebrow ? <p className="mb-1 text-sm font-medium text-neutral-500">{eyebrow}</p> : null}
-        <h1 className="text-3xl font-semibold tracking-tight text-neutral-950">{title}</h1>
+        <h1 className="break-words text-3xl font-semibold tracking-tight text-neutral-950">{title}</h1>
       </div>
-      {action}
+      {action ? <div className="flex flex-wrap gap-2">{action}</div> : null}
     </div>
   );
 }
@@ -60,7 +60,7 @@ export function Metric({
   return (
     <div className={`rounded-md border p-4 ${toneClass}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950">{value}</p>
+      <p className="mt-2 break-words text-2xl font-semibold tracking-tight text-neutral-950">{value}</p>
     </div>
   );
 }
@@ -85,16 +85,16 @@ export function CostTable({ title, section }: { title: string; section: CostSect
           <tbody>
             {section.lines.map((line) => (
               <tr key={line.label} className="border-b border-neutral-200 last:border-0">
-                <td className="px-4 py-2.5 text-neutral-700">
-                  <span className="block">{line.label}</span>
-                  {line.working ? <span className="mt-1 block text-xs text-neutral-500">{line.working}</span> : null}
+                <td className="min-w-0 px-4 py-2.5 text-neutral-700">
+                  <span className="block break-words">{line.label}</span>
+                  {line.working ? <span className="mt-1 block break-words text-xs text-neutral-500">{line.working}</span> : null}
                 </td>
-                <td className="px-4 py-2.5 text-right font-medium text-neutral-950">{formatCurrency(line.amount)}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-right font-medium text-neutral-950">{formatCurrency(line.amount)}</td>
               </tr>
             ))}
             <tr className="bg-neutral-50">
               <td className="px-4 py-3 font-semibold text-neutral-950">Total</td>
-              <td className="px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(section.total)}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-neutral-950">{formatCurrency(section.total)}</td>
             </tr>
           </tbody>
         </table>

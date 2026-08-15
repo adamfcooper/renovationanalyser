@@ -8,14 +8,14 @@ const navItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen overflow-x-hidden bg-neutral-100">
       <header className="border-b border-neutral-300 bg-white text-neutral-950">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
             <span className="grid size-10 place-items-center rounded-md border border-neutral-300 bg-white text-neutral-950">
               <BarChart3 size={21} />
             </span>
-            <span>
+            <span className="min-w-0">
               <span className="block text-base font-semibold tracking-tight text-neutral-950">Renovation Deal Analyser</span>
               <span className="block text-xs text-neutral-500">UK renovation and flip calculator</span>
             </span>

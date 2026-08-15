@@ -117,8 +117,16 @@ function DashboardMetric({ label, value, accent }: Metric) {
 
 function LiveTable({ rows }: { rows: LiveRow[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] text-sm">
+    <>
+      <div className="grid gap-3 p-3 md:hidden">
+        {rows.length > 0 ? (
+          rows.map((row) => <LiveProjectCard key={row.id} row={row} />)
+        ) : (
+          <p className="px-1 py-5 text-sm text-neutral-500">No live renovations yet.</p>
+        )}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
             <th className="px-4 py-3">Project</th>
@@ -153,14 +161,23 @@ function LiveTable({ rows }: { rows: LiveRow[] }) {
           )}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
 
 function ForecastTable({ rows }: { rows: ForecastRow[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] text-sm">
+    <>
+      <div className="grid gap-3 p-3 md:hidden">
+        {rows.length > 0 ? (
+          rows.map((row) => <ForecastProjectCard key={row.id} row={row} />)
+        ) : (
+          <p className="px-1 py-5 text-sm text-neutral-500">No deal forecasts yet.</p>
+        )}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-500">
             <th className="px-4 py-3">Project</th>
@@ -195,6 +212,58 @@ function ForecastTable({ rows }: { rows: ForecastRow[] }) {
           )}
         </tbody>
       </table>
+      </div>
+    </>
+  );
+}
+
+function LiveProjectCard({ row }: { row: LiveRow }) {
+  return (
+    <Link href={`/projects/${row.id}`} className="rounded-md border border-neutral-300 bg-white p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="break-words font-semibold text-neutral-950">{row.name}</p>
+          <p className="mt-1 text-xs capitalize text-neutral-500">{row.propertyType}</p>
+        </div>
+        <ScoreBadge score={row.score} />
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <CardStat label="Live spend" value={row.liveSpend} />
+        <CardStat label="Planned" value={row.planned} />
+        <CardStat label="All-in" value={row.allIn} />
+        <CardStat label="Profit" tone={numberTone(row.profitValue)} value={row.profit} />
+        <CardStat label="ROI" tone={numberTone(row.roiValue)} value={row.roi} />
+      </div>
+    </Link>
+  );
+}
+
+function ForecastProjectCard({ row }: { row: ForecastRow }) {
+  return (
+    <Link href={`/projects/${row.id}`} className="rounded-md border border-neutral-300 bg-white p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="break-words font-semibold text-neutral-950">{row.name}</p>
+          <p className="mt-1 text-xs capitalize text-neutral-500">{row.propertyType}</p>
+        </div>
+        <ScoreBadge score={row.score} />
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <CardStat label="Purchase" value={row.purchase} />
+        <CardStat label="Sale" value={row.sale} />
+        <CardStat label="All-in" value={row.allIn} />
+        <CardStat label="Profit" tone={numberTone(row.profitValue)} value={row.profit} />
+        <CardStat label="ROI" tone={numberTone(row.roiValue)} value={row.roi} />
+      </div>
+    </Link>
+  );
+}
+
+function CardStat({ label, tone = "text-neutral-950", value }: { label: string; tone?: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-neutral-50 p-2">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">{label}</p>
+      <p className={`mt-1 break-words font-semibold ${tone}`}>{value}</p>
     </div>
   );
 }

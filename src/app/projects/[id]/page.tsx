@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
 import { addRenovationCostItemAction } from "@/app/actions";
-import { LiveCostRow } from "@/components/live-cost-row";
+import { LiveCostCard, LiveCostTableRow } from "@/components/live-cost-row";
 import { ReceiptUploadForm } from "@/components/receipt-upload-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
 import { costSectionOptions } from "@/lib/cost-sections";
@@ -308,8 +308,27 @@ function LiveCostGroup({
       </summary>
 
       {group.items.length > 0 ? (
-        <div className="overflow-x-auto border-t border-neutral-300">
-          <table className="w-full min-w-[860px] text-sm">
+        <>
+          <div className="grid gap-3 border-t border-neutral-300 p-3 md:hidden">
+            {group.items.map((item) => (
+              <LiveCostCard
+                key={item.id}
+                item={{
+                  id: item.id,
+                  amount: item.amount,
+                  name: item.name,
+                  notes: item.notes,
+                  purchaseUrl: item.purchaseUrl,
+                  purchased: item.purchased,
+                  supplier: item.supplier,
+                  tag: item.tag,
+                }}
+                projectId={projectId}
+              />
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto border-t border-neutral-300 md:block">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-300 bg-neutral-50 text-left text-xs uppercase tracking-wide text-neutral-700">
                 <th className="px-4 py-3">Item</th>
@@ -322,7 +341,7 @@ function LiveCostGroup({
             </thead>
             <tbody>
               {group.items.map((item) => (
-                <LiveCostRow
+                <LiveCostTableRow
                   key={item.id}
                   item={{
                     id: item.id,
@@ -339,7 +358,8 @@ function LiveCostGroup({
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       ) : (
         <div className="border-t border-neutral-300 px-4 py-5 text-sm text-neutral-500">No costs in this section yet.</div>
       )}
