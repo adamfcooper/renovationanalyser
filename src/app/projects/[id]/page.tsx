@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChevronDown, ExternalLink } from "lucide-react";
-import { addRenovationCostItemAction, deleteImportedSpreadsheetCostsAction } from "@/app/actions";
+import { addRenovationCostItemAction } from "@/app/actions";
 import { LiveCostCard, LiveCostTableRow } from "@/components/live-cost-row";
 import { ReceiptUploadForm } from "@/components/receipt-upload-form";
 import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/components/ui";
 import { costSectionOptions } from "@/lib/cost-sections";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
-import { ericaDriveCostItems } from "@/lib/seed-data";
 import { liveCostGroupForTag } from "@/lib/tags";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +33,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     .reduce((sum, item) => sum + item.amount, 0);
   const trackedTotal = purchasedTotal + plannedTotal;
   const groupedCostItems = groupRenovationCostItems(project.costItems);
-  const importedSpreadsheetCosts = project.costItems.filter((cost) =>
-    ericaDriveCostItems.some((imported) => imported.name === cost.name && imported.amount === cost.amount),
-  ).length;
 
   return (
     <>
@@ -64,7 +60,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
       <LiveRenovationCosts
         groupedCostItems={groupedCostItems}
-        importedSpreadsheetCosts={importedSpreadsheetCosts}
         plannedTotal={plannedTotal}
         projectId={project.id}
         purchasedTotal={purchasedTotal}
@@ -145,7 +140,6 @@ function CollapsedSection({ children, title }: { children: React.ReactNode; titl
 
 function LiveRenovationCosts({
   groupedCostItems,
-  importedSpreadsheetCosts,
   plannedTotal,
   projectId,
   purchasedTotal,
@@ -158,7 +152,6 @@ function LiveRenovationCosts({
     title: string;
     total: number;
   }>;
-  importedSpreadsheetCosts: number;
   plannedTotal: number;
   projectId: string;
   purchasedTotal: number;
@@ -166,16 +159,8 @@ function LiveRenovationCosts({
 }) {
   return (
     <section className="mt-6 rounded-md border border-neutral-300 bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-300 px-4 py-3">
+      <div className="border-b border-neutral-300 px-4 py-3">
         <h2 className="text-base font-semibold text-neutral-950">Live renovation costs</h2>
-        {importedSpreadsheetCosts > 0 ? (
-          <form action={deleteImportedSpreadsheetCostsAction}>
-            <input type="hidden" name="projectId" value={projectId} />
-            <button className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50">
-              Remove {importedSpreadsheetCosts} spreadsheet-imported costs
-            </button>
-          </form>
-        ) : null}
       </div>
       <div className="grid gap-4 border-b border-neutral-300 p-4 md:grid-cols-3">
         <Metric label="Purchased" value={formatCurrency(purchasedTotal)} tone="good" />

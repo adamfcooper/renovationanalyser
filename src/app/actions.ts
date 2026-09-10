@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "@/lib/calculations";
 import { getDb } from "@/lib/db";
 import { getAssumptions } from "@/lib/data";
-import { ericaDriveCostItems } from "@/lib/seed-data";
 import { renovationTag } from "@/lib/tags";
 
 function text(formData: FormData, key: string, fallback = "") {
@@ -412,25 +411,6 @@ export async function deleteRenovationCostItemAction(formData: FormData) {
   if (!projectId || !itemId) return;
 
   await getDb().renovationCostItem.delete({ where: { id: itemId } });
-
-  revalidatePath("/");
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`);
-}
-
-export async function deleteImportedSpreadsheetCostsAction(formData: FormData) {
-  const projectId = text(formData, "projectId");
-  if (!projectId) return;
-
-  await getDb().renovationCostItem.deleteMany({
-    where: {
-      projectId,
-      OR: ericaDriveCostItems.map((item) => ({
-        name: item.name,
-        amount: item.amount,
-      })),
-    },
-  });
 
   revalidatePath("/");
   revalidatePath("/projects");
