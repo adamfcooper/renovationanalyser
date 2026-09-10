@@ -1,14 +1,6 @@
 import { getDb } from "./db";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "./calculations";
-import {
-  defaultAssumptions,
-  ericaDriveCostItems,
-  ericaDriveProject,
-  ericaDriveStarterItemNames,
-} from "./seed-data";
-
-const ERICA_PURCHASED_SEED_VERSION = "erica-cost-items-purchased-v1";
-const ERICA_PURCHASED_SEED_MARKER = `[seed:${ERICA_PURCHASED_SEED_VERSION}]`;
+import { defaultAssumptions } from "./seed-data";
 
 export async function getAssumptions() {
   const db = getDb();
@@ -23,52 +15,20 @@ export async function getProjects() {
   const db = getDb();
   await ensureMiscTags();
 
-  let projects = await db.project.findMany({
+  return db.project.findMany({
     orderBy: { createdAt: "desc" },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
-
-  const ericaProject = projects.find((project) => project.name === ericaDriveProject.name);
-  const importedItemNames = new Set(ericaDriveCostItems.map((item) => item.name));
-  const importedItems = ericaProject?.costItems.filter((item) => importedItemNames.has(item.name)) ?? [];
-  const needsEricaSeed =
-    !ericaProject ||
-    !ericaProject.costItems.some((item) => item.name === ericaDriveCostItems[0].name) ||
-    (!ericaProject.notes?.includes(ERICA_PURCHASED_SEED_MARKER) && importedItems.some((item) => !item.purchased));
-
-  if (needsEricaSeed) {
-    await seedStarterProject();
-    projects = await db.project.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
-    });
-  } else if (ericaProject && (await clearEricaDriveCostItemNotes(ericaProject.id))) {
-    projects = await db.project.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
-    });
-  }
-
-  return projects;
 }
 
 export async function getProject(id: string) {
   const db = getDb();
   await ensureMiscTags();
 
-  const project = await db.project.findUnique({
+  return db.project.findUnique({
     where: { id },
     include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
   });
-
-  if (project?.name === ericaDriveProject.name && (await clearEricaDriveCostItemNotes(project.id))) {
-    return db.project.findUnique({
-      where: { id },
-      include: { costItems: { orderBy: [{ purchased: "asc" }, { createdAt: "desc" }] } },
-    });
-  }
-
-  return project;
 }
 
 export async function getCalculatedProjects() {
@@ -89,113 +49,6 @@ export async function getCalculatedProject(id: string) {
     assumptions,
     calculation: calculateDeal(project as ProjectInput, assumptions as AssumptionsInput),
   };
-}
-
-async function seedStarterProject() {
-  const db = getDb();
-  const existingProject = await db.project.findFirst({
-    where: { name: ericaDriveProject.name },
-  });
-
-  if (existingProject) {
-    await ensureEricaDriveCostItems(existingProject.id);
-    return;
-  }
-
-  const project = await db.project.create({
-    data: {
-      ...ericaDriveProject,
-      plumbingLevel: ericaDriveProject.plumbingLevel ?? "NONE",
-      electricalLevel: ericaDriveProject.electricalLevel ?? "NONE",
-      decoratingLevel: ericaDriveProject.decoratingLevel ?? "NONE",
-      plasteringLevel: ericaDriveProject.plasteringLevel ?? "NONE",
-      notes: ericaSeedNotes(),
-      costItems: {
-        create: ericaDriveCostItems,
-      },
-    },
-  });
-
-  await ensureEricaDriveCostItems(project.id);
-}
-
-async function ensureEricaDriveCostItems(projectId: string) {
-  const db = getDb();
-  const importedItemNames = ericaDriveCostItems.map((item) => item.name);
-  const existingItems = await db.renovationCostItem.findMany({
-    where: { projectId },
-    select: { name: true, purchased: true },
-  });
-  const existingNames = new Set(existingItems.map((item) => item.name));
-
-  if (existingNames.has(ericaDriveCostItems[0].name)) {
-    await db.renovationCostItem.updateMany({
-      where: {
-        projectId,
-        name: { in: importedItemNames },
-      },
-      data: {
-        purchased: true,
-        purchasedAt: new Date(),
-        notes: null,
-      },
-    });
-    await db.project.update({
-      where: { id: projectId },
-      data: { notes: existingProjectNotesWithMarker(await getProjectNotes(projectId)) },
-    });
-    return;
-  }
-
-  await db.renovationCostItem.deleteMany({
-    where: {
-      projectId,
-      name: { in: ericaDriveStarterItemNames },
-    },
-  });
-
-  await db.renovationCostItem.createMany({
-    data: ericaDriveCostItems.map((item) => ({
-      ...item,
-      projectId,
-      purchasedAt: item.purchased ? new Date() : null,
-    })),
-  });
-  await db.project.update({
-    where: { id: projectId },
-    data: { notes: existingProjectNotesWithMarker(await getProjectNotes(projectId)) },
-  });
-}
-
-async function clearEricaDriveCostItemNotes(projectId: string) {
-  const result = await getDb().renovationCostItem.updateMany({
-    where: {
-      projectId,
-      name: { in: ericaDriveCostItems.map((item) => item.name) },
-      notes: { not: null },
-    },
-    data: { notes: null },
-  });
-
-  return result.count > 0;
-}
-
-async function getProjectNotes(projectId: string) {
-  const project = await getDb().project.findUnique({
-    where: { id: projectId },
-    select: { notes: true },
-  });
-
-  return project?.notes ?? null;
-}
-
-function ericaSeedNotes() {
-  return `Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft.\n${ERICA_PURCHASED_SEED_MARKER}`;
-}
-
-function existingProjectNotesWithMarker(notes: string | null) {
-  if (notes?.includes(ERICA_PURCHASED_SEED_MARKER)) return notes;
-  return `${notes?.trim() || "Seeded from the Erica Drive finance sheet and floor plan. Floor-plan approximate total area: 915 sq ft."}\n${ERICA_PURCHASED_SEED_MARKER}`;
 }
 
 async function ensureMiscTags() {
