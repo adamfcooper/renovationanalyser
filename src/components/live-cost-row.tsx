@@ -6,6 +6,7 @@ import { ExternalLink } from "lucide-react";
 import { deleteRenovationCostItemAction, updateRenovationCostItemAction } from "@/app/actions";
 import { costSectionOptions } from "@/lib/cost-sections";
 import { formatCurrency } from "@/lib/format";
+import { payerLabel, payerOptions } from "@/lib/payers";
 import { liveCostGroupForTag } from "@/lib/tags";
 import { PurchasedStatusForm } from "./purchased-status-form";
 
@@ -14,6 +15,7 @@ export type LiveCostRowItem = {
   amount: number;
   name: string;
   notes: string | null;
+  paidBy: string;
   purchaseUrl: string | null;
   purchased: boolean;
   supplier: string | null;
@@ -44,6 +46,10 @@ export function LiveCostCard({ item, projectId }: { item: LiveCostRowItem; proje
           ) : (
             <span className="min-w-0 truncate text-neutral-700">{item.supplier || "n/a"}</span>
           )}
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-neutral-500">Paid by</span>
+          <span className="font-medium text-neutral-700">{payerLabel(item.paidBy)}</span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-neutral-500">Status</span>
@@ -96,6 +102,7 @@ export function LiveCostTableRow({ item, projectId }: { item: LiveCostRowItem; p
             item.supplier || "n/a"
           )}
         </td>
+        <td className="px-4 py-3 font-medium text-neutral-700">{payerLabel(item.paidBy)}</td>
         <td className="px-4 py-3 text-right font-medium text-neutral-950">{formatCurrency(item.amount)}</td>
         <td className="px-4 py-3">
           <PurchasedStatusForm itemId={item.id} itemName={item.name} projectId={projectId} purchased={item.purchased} />
@@ -125,8 +132,8 @@ export function LiveCostTableRow({ item, projectId }: { item: LiveCostRowItem; p
       </tr>
       {isEditing ? (
         <tr className="border-b border-neutral-200 last:border-0">
-          <td colSpan={6} className="bg-neutral-50 px-4 py-3">
-            <form onSubmit={saveExpense} className="grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-6">
+          <td colSpan={7} className="bg-neutral-50 px-4 py-3">
+            <form onSubmit={saveExpense} className="grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-7">
               <input type="hidden" name="projectId" value={projectId} />
               <input type="hidden" name="itemId" value={item.id} />
               <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-2">
@@ -158,6 +165,18 @@ export function LiveCostTableRow({ item, projectId }: { item: LiveCostRowItem; p
                   name="supplier"
                 />
               </label>
+              <label className="grid gap-1 text-xs font-medium text-neutral-700">
+                Paid by
+                <select
+                  className="h-9 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none focus:border-neutral-950"
+                  defaultValue={item.paidBy}
+                  name="paidBy"
+                >
+                  {payerOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
               <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-2">
                 Purchase link
                 <input
@@ -187,7 +206,7 @@ export function LiveCostTableRow({ item, projectId }: { item: LiveCostRowItem; p
                   ))}
                 </div>
               </fieldset>
-              <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-5">
+              <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-6">
                 Notes
                 <input
                   className="h-9 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none focus:border-neutral-950"
@@ -270,7 +289,7 @@ function ExpenseEditForm({
   projectId: string;
 }) {
   return (
-    <form onSubmit={onSubmit} className="mt-3 grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-6">
+    <form onSubmit={onSubmit} className="mt-3 grid gap-3 rounded-md border border-neutral-300 bg-white p-3 md:grid-cols-7">
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="itemId" value={item.id} />
       <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-2">
@@ -302,6 +321,18 @@ function ExpenseEditForm({
           name="supplier"
         />
       </label>
+      <label className="grid gap-1 text-xs font-medium text-neutral-700">
+        Paid by
+        <select
+          className="h-9 min-w-0 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none focus:border-neutral-950"
+          defaultValue={item.paidBy}
+          name="paidBy"
+        >
+          {payerOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
       <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-2">
         Purchase link
         <input
@@ -324,7 +355,7 @@ function ExpenseEditForm({
           ))}
         </div>
       </fieldset>
-      <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-5">
+      <label className="grid gap-1 text-xs font-medium text-neutral-700 md:col-span-6">
         Notes
         <input
           className="h-9 min-w-0 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none focus:border-neutral-950"

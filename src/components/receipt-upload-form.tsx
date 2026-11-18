@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Check, FileCheck2, LoaderCircle, Plus, ReceiptText, RotateCcw, Trash2, Upload } from "lucide-react";
 import { addRenovationReceiptItemsAction } from "@/app/actions";
+import { payerOptions } from "@/lib/payers";
 import { costSectionOptions } from "@/lib/cost-sections";
 import { suggestReceiptDetails } from "@/lib/receipt";
 
@@ -241,7 +242,7 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
               )}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
                 Supplier
                 <input
@@ -251,6 +252,18 @@ export function ReceiptUploadForm({ projectId }: { projectId: string }) {
                   placeholder="B&Q"
                   value={review.supplier}
                 />
+              </label>
+              <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
+                Paid by
+                <select
+                  className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
+                  defaultValue="ADAM"
+                  name="paidBy"
+                >
+                  {payerOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </label>
               <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
                 Receipt total

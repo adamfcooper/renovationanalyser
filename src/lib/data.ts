@@ -13,6 +13,7 @@ export async function getAssumptions() {
 
 export async function getProjects() {
   const db = getDb();
+  await ensureRenovationCostItemPaidBy();
   await ensureMiscTags();
 
   return db.project.findMany({
@@ -23,6 +24,7 @@ export async function getProjects() {
 
 export async function getProject(id: string) {
   const db = getDb();
+  await ensureRenovationCostItemPaidBy();
   await ensureMiscTags();
 
   return db.project.findUnique({
@@ -49,6 +51,24 @@ export async function getCalculatedProject(id: string) {
     assumptions,
     calculation: calculateDeal(project as ProjectInput, assumptions as AssumptionsInput),
   };
+}
+
+let paidByColumnReady: Promise<void> | null = null;
+
+export function ensureRenovationCostItemPaidBy() {
+  if (!paidByColumnReady) {
+    paidByColumnReady = getDb()
+      .$executeRawUnsafe(
+        `ALTER TABLE "RenovationCostItem" ADD COLUMN IF NOT EXISTS "paidBy" TEXT NOT NULL DEFAULT 'ADAM'`,
+      )
+      .then(() => undefined)
+      .catch((error) => {
+        paidByColumnReady = null;
+        throw error;
+      });
+  }
+
+  return paidByColumnReady;
 }
 
 async function ensureMiscTags() {

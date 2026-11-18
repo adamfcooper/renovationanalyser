@@ -8,6 +8,7 @@ import { ButtonLink, CostTable, Metric, PageHeader, ScoreBadge } from "@/compone
 import { costSectionOptions } from "@/lib/cost-sections";
 import { getCalculatedProject } from "@/lib/data";
 import { formatCurrency, formatNumber, formatPercent, labelize } from "@/lib/format";
+import { payerOptions } from "@/lib/payers";
 import { liveCostGroupForTag } from "@/lib/tags";
 
 export const dynamic = "force-dynamic";
@@ -220,6 +221,18 @@ function LiveRenovationCosts({
               />
             </label>
             <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
+              Paid by
+              <select
+                className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-950"
+                defaultValue="ADAM"
+                name="paidBy"
+              >
+                {payerOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-800">
               Purchase link
               <input
                 className="h-10 rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-950 outline-none transition placeholder:text-neutral-500 focus:border-neutral-950"
@@ -318,6 +331,7 @@ function LiveCostGroup({
                   amount: item.amount,
                   name: item.name,
                   notes: item.notes,
+                  paidBy: item.paidBy,
                   purchaseUrl: item.purchaseUrl,
                   purchased: item.purchased,
                   supplier: item.supplier,
@@ -334,6 +348,7 @@ function LiveCostGroup({
                 <th className="px-4 py-3">Item</th>
                 <th className="px-4 py-3">Section</th>
                 <th className="px-4 py-3">Supplier</th>
+                <th className="px-4 py-3">Paid by</th>
                 <th className="px-4 py-3 text-right">Amount</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -348,6 +363,7 @@ function LiveCostGroup({
                     amount: item.amount,
                     name: item.name,
                     notes: item.notes,
+                    paidBy: item.paidBy,
                     purchaseUrl: item.purchaseUrl,
                     purchased: item.purchased,
                     supplier: item.supplier,

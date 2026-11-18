@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { calculateDeal, type AssumptionsInput, type ProjectInput } from "@/lib/calculations";
 import { getDb } from "@/lib/db";
-import { getAssumptions } from "@/lib/data";
+import { ensureRenovationCostItemPaidBy, getAssumptions } from "@/lib/data";
+import { payer } from "@/lib/payers";
 import { renovationTag } from "@/lib/tags";
 
 function text(formData: FormData, key: string, fallback = "") {
@@ -291,12 +292,14 @@ export async function addRenovationCostItemAction(formData: FormData) {
 
   if (!projectId || !name || amount <= 0) return;
 
+  await ensureRenovationCostItemPaidBy();
   await getDb().renovationCostItem.create({
     data: {
       projectId,
       name,
       tag: renovationTag(text(formData, "tag")),
       amount,
+      paidBy: payer(text(formData, "paidBy", "ADAM")),
       purchased,
       supplier: text(formData, "supplier") || null,
       purchaseUrl: text(formData, "purchaseUrl") || null,
@@ -339,6 +342,7 @@ export async function addRenovationReceiptItemsAction(formData: FormData) {
 
   if (items.length === 0) return;
 
+  await ensureRenovationCostItemPaidBy();
   const purchasedAt = new Date();
   await getDb().renovationCostItem.createMany({
     data: items.map((item) => ({
@@ -346,6 +350,7 @@ export async function addRenovationReceiptItemsAction(formData: FormData) {
       name: item.name,
       tag,
       amount: item.amount,
+      paidBy: payer(text(formData, "paidBy", "ADAM")),
       purchased: true,
       supplier,
       notes: "Added from an approved receipt scan.",
@@ -366,6 +371,7 @@ export async function updateRenovationCostItemStatusAction(formData: FormData) {
 
   if (!projectId || !itemId) return;
 
+  await ensureRenovationCostItemPaidBy();
   await getDb().renovationCostItem.update({
     where: { id: itemId },
     data: {
@@ -387,12 +393,14 @@ export async function updateRenovationCostItemAction(formData: FormData) {
 
   if (!projectId || !itemId || !name || amount < 0) return;
 
+  await ensureRenovationCostItemPaidBy();
   await getDb().renovationCostItem.update({
     where: { id: itemId },
     data: {
       name,
       tag: renovationTag(text(formData, "tag")),
       amount,
+      paidBy: payer(text(formData, "paidBy", "ADAM")),
       supplier: text(formData, "supplier") || null,
       purchaseUrl: text(formData, "purchaseUrl") || null,
       notes: text(formData, "notes") || null,
@@ -410,6 +418,7 @@ export async function deleteRenovationCostItemAction(formData: FormData) {
 
   if (!projectId || !itemId) return;
 
+  await ensureRenovationCostItemPaidBy();
   await getDb().renovationCostItem.delete({ where: { id: itemId } });
 
   revalidatePath("/");

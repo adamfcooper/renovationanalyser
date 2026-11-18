@@ -162,6 +162,7 @@ model RenovationCostItem {
   name        String
   tag         String?
   amount      Float
+  paidBy      String   @default("ADAM")
   purchased   Boolean  @default(false)
   supplier    String?
   purchaseUrl String?
